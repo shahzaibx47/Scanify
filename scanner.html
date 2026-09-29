@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner - Scanify</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar (Desktop) -->
+    <nav class="navbar desktop-nav">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-file-scan"></i>
+                <span>Scanify</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="scanner.html" class="active">Scanner</a></li>
+                <li><a href="documents.html">Documents</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+            <button class="btn btn-primary nav-scan-btn" onclick="showScanOptions()">
+                <i class="fas fa-plus"></i> Scan
+            </button>
+        </div>
+    </nav>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav mobile-nav">
+        <a href="index.html" class="nav-item" data-page="home">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="documents.html" class="nav-item" data-page="documents">
+            <i class="fas fa-file"></i>
+            <span>Documents</span>
+        </a>
+        <button class="nav-fab active" onclick="showScanOptions()" title="Scan Document">
+            <i class="fas fa-plus"></i>
+        </button>
+        <a href="tools.html" class="nav-item" data-page="tools">
+            <i class="fas fa-tools"></i>
+            <span>Tools</span>
+        </a>
+        <a href="settings.html" class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="scanner-container">
+            <h1>Document Scanner</h1>
+
+            <!-- Scan Options -->
+            <div id="scanOptions" class="scan-options">
+                <div class="option-card" onclick="openCamera()">
+                    <i class="fas fa-camera"></i>
+                    <h3>Open Camera</h3>
+                    <p>Use your device's camera to scan documents</p>
+                </div>
+                <div class="option-card" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-image"></i>
+                    <h3>Upload Image</h3>
+                    <p>Select an image from your device</p>
+                </div>
+            </div>
+
+            <!-- Camera Preview -->
+            <div id="cameraSection" class="camera-section" style="display: none;">
+                <div class="camera-wrapper">
+                    <video id="cameraPreview" autoplay playsinline></video>
+                    <div class="camera-controls">
+                        <button class="btn btn-primary" onclick="capturePhoto()">
+                            <i class="fas fa-circle"></i> Capture
+                        </button>
+                        <button class="btn btn-secondary" onclick="stopCamera()">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Editor -->
+            <div id="editorSection" class="editor-section" style="display: none;">
+                <div class="editor-preview">
+                    <canvas id="editorCanvas"></canvas>
+                </div>
+
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <label>Crop</label>
+                        <button class="btn btn-icon" onclick="enableCrop()" title="Crop Image">
+                            <i class="fas fa-crop"></i>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <label>Rotate</label>
+                        <button class="btn btn-icon" onclick="rotateImage()" title="Rotate 90°">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <label>Filter</label>
+                        <select id="filterSelect" onchange="applyFilter(this.value)">
+                            <option value="original">Original</option>
+                            <option value="grayscale">Grayscale</option>
+                            <option value="bw">Black & White</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="btn btn-secondary" onclick="resetImage()" title="Reset">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="editor-actions">
+                    <button class="btn btn-primary" onclick="saveDocument()">
+                        <i class="fas fa-save"></i> Save Scan
+                    </button>
+                    <button class="btn btn-secondary" onclick="backToOptions()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+            </div>
+
+            <!-- Crop Modal -->
+            <div id="cropModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Crop Image</h2>
+                        <button class="modal-close" onclick="closeCropModal()">×</button>
+                    </div>
+                    <div class="crop-container">
+                        <canvas id="cropCanvas"></canvas>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="applyCrop()">Apply Crop</button>
+                        <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Document Modal -->
+            <div id="saveModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Save Document</h2>
+                        <button class="modal-close" onclick="closeSaveModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="docName">Document Name:</label>
+                        <input type="text" id="docName" placeholder="e.g., Lecture Notes, Assignment, CNIC Scan" class="form-input">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="confirmSave()">Save</button>
+                        <button class="btn btn-secondary" onclick="closeSaveModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="loadImage(event)">
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/scanner.js"></script>
+</body>
+</html>
