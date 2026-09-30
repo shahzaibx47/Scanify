@@ -6,23 +6,37 @@
 /**
  * Save a document to LocalStorage
  */
-function saveDocument(name, imageData, fileType = 'JPG') {
+function saveDocument(nameOrDocument, imageData, fileType = 'JPG') {
     const documents = getDocuments();
-    const id = Date.now().toString();
-    
-    const document = {
-        id: id,
-        name: name,
-        imageData: imageData,
-        fileType: fileType,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    };
-    
-    documents.push(document);
-    localStorage.setItem('scanify-documents', JSON.stringify(documents));
-    
-    return document;
+    const now = Date.now();
+
+    const document = (nameOrDocument && typeof nameOrDocument === 'object')
+        ? {
+            id: nameOrDocument.id || ('doc_' + now),
+            name: nameOrDocument.name || 'Scanned Document',
+            imageData: nameOrDocument.imageData || '',
+            fileType: nameOrDocument.fileType || 'JPG',
+            createdAt: nameOrDocument.createdAt || now,
+            updatedAt: now
+        }
+        : {
+            id: 'doc_' + now,
+            name: nameOrDocument || 'Scanned Document',
+            imageData: imageData || '',
+            fileType: fileType || 'JPG',
+            createdAt: now,
+            updatedAt: now
+        };
+
+    documents.unshift(document);
+
+    try {
+        localStorage.setItem('scanify-documents', JSON.stringify(documents));
+        return document;
+    } catch (error) {
+        console.error('[Scanify] Storage error:', error);
+        return null;
+    }
 }
 
 /**

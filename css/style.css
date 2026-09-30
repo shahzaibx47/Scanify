@@ -1257,3 +1257,286 @@ textarea.form-input {
 .crop-container {
     padding: var(--space-md);
 }
+
+/* =========================================================
+   SCANIFY PROFESSIONAL UI ENHANCEMENTS
+   ========================================================= */
+
+:root {
+    --primary: #4f46e5;
+    --primary-light: #6366f1;
+    --primary-dark: #3730a3;
+    --secondary: #0d9488;
+    --glass: rgba(255,255,255,.76);
+    --glass-border: rgba(148,163,184,.24);
+}
+
+body {
+    background:
+        radial-gradient(circle at 8% 8%, rgba(79,70,229,.10), transparent 28rem),
+        radial-gradient(circle at 92% 12%, rgba(13,148,136,.09), transparent 24rem),
+        var(--bg-primary);
+}
+
+.navbar {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 8px 30px rgba(15,23,42,.06);
+}
+
+.navbar-logo {
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.navbar-logo i {
+    filter: drop-shadow(0 6px 14px rgba(79,70,229,.28));
+}
+
+.page-title {
+    letter-spacing: -.035em;
+    font-weight: 800;
+}
+
+.page-subtitle {
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    max-width: 680px;
+}
+
+.scanner-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border: 1px solid rgba(79,70,229,.16);
+    border-radius: 999px;
+    color: var(--primary);
+    background: rgba(79,70,229,.07);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.scan-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    background: var(--glass);
+    box-shadow: 0 10px 25px rgba(15,23,42,.06);
+    font-size: .82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 5px rgba(16,185,129,.12);
+}
+
+.scan-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.option-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 230px;
+    padding: 34px;
+    border: 1px solid rgba(148,163,184,.18);
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(248,250,252,.82));
+    box-shadow: 0 18px 45px rgba(15,23,42,.08);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    text-align: left;
+}
+
+.option-card::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -55px;
+    bottom: -65px;
+    border-radius: 50%;
+    background: rgba(79,70,229,.08);
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(79,70,229,.30);
+    box-shadow: 0 25px 60px rgba(15,23,42,.13);
+}
+
+.option-card > i {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 24px;
+    border-radius: 17px;
+    color: white;
+    background: linear-gradient(135deg, var(--primary), #818cf8);
+    box-shadow: 0 12px 25px rgba(79,70,229,.28);
+    font-size: 1.3rem;
+}
+
+.option-card h3 {
+    margin: 0 0 7px;
+    font-size: 1.2rem;
+}
+
+.option-card p {
+    max-width: 330px;
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.camera-wrapper,
+.editor-preview,
+.editor-section {
+    border-radius: 24px;
+}
+
+.camera-wrapper {
+    overflow: hidden;
+    border: 1px solid rgba(148,163,184,.2);
+    background: #0f172a;
+    box-shadow: 0 25px 65px rgba(15,23,42,.18);
+}
+
+.camera-wrapper video {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    min-height: 320px;
+    object-fit: contain;
+    background: #020617;
+}
+
+.editor-section {
+    padding: 20px;
+    border: 1px solid rgba(148,163,184,.18);
+    background: rgba(255,255,255,.72);
+    box-shadow: 0 18px 50px rgba(15,23,42,.08);
+    backdrop-filter: blur(14px);
+}
+
+.editor-preview {
+    display: grid;
+    place-items: center;
+    min-height: 420px;
+    padding: 22px;
+    background:
+        linear-gradient(45deg, #eef2f7 25%, transparent 25%),
+        linear-gradient(-45deg, #eef2f7 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #eef2f7 75%),
+        linear-gradient(-45deg, transparent 75%, #eef2f7 75%);
+    background-size: 28px 28px;
+    background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+}
+
+#editorCanvas {
+    max-width: 100%;
+    max-height: 68vh;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 20px 55px rgba(15,23,42,.24);
+}
+
+.editor-toolbar {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1px solid rgba(148,163,184,.18);
+    border-radius: 18px;
+    background: rgba(248,250,252,.82);
+}
+
+.editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.btn {
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    box-shadow: 0 9px 22px rgba(79,70,229,.22);
+}
+
+.modal-content {
+    border: 1px solid rgba(148,163,184,.20);
+    box-shadow: 0 30px 90px rgba(15,23,42,.24);
+    backdrop-filter: blur(20px);
+}
+
+@media (max-width: 760px) {
+    .scanner-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .scan-options {
+        grid-template-columns: 1fr;
+    }
+
+    .option-card {
+        min-height: 190px;
+        padding: 26px;
+    }
+
+    .editor-section {
+        padding: 12px;
+    }
+
+    .editor-preview {
+        min-height: 280px;
+        padding: 10px;
+    }
+
+    .editor-actions .btn {
+        flex: 1 1 calc(50% - 10px);
+    }
+}
+
+[data-theme="dark"] body {
+    background:
+        radial-gradient(circle at 10% 10%, rgba(99,102,241,.13), transparent 26rem),
+        radial-gradient(circle at 90% 10%, rgba(13,148,136,.10), transparent 24rem),
+        var(--bg-primary);
+}
+
+[data-theme="dark"] .option-card,
+[data-theme="dark"] .editor-section {
+    background: rgba(15,23,42,.72);
+    border-color: rgba(148,163,184,.14);
+}
+
+[data-theme="dark"] .editor-toolbar {
+    background: rgba(30,41,59,.72);
+}

@@ -70,26 +70,35 @@
             el.hidden = key !== name;
         });
     }
-
-    /* =========================================================
-       CAMERA
-       ========================================================= */
-
     async function openCamera() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             toast('Camera is not supported on this device or browser', 'error');
             return;
         }
 
+        let stream = null;
+
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: { ideal: 'environment' },
-                    width:  { ideal: 1920 },
-                    height: { ideal: 1080 }
-                },
-                audio: false
-            });
+            // Attempt 1: Prefer back camera with modest resolution
+            // (lower resolution = better mobile compatibility)
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width:  { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+            } catch (err1) {
+                console.warn('Back camera with constraints failed, trying simpler:', err1);
+
+                // Attempt 2: Any camera, no constraints
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+            }
 
             const video = $('cameraPreview');
             if (!video) {
@@ -99,72 +108,62 @@
 
             state.mediaStream = stream;
             video.srcObject = stream;
+            video.setAttribute('playsinline', 'true'); // iOS Safari
+            video.muted = true;
+
             setSection('camera');
 
-            await video.play().catch(() => {});
+            // Try to play (may throw if not allowed by browser policy)
+            try {
+                await video.play();
+            } catch (playErr) {
+                console.warn('video.play() failed:', playErr);
+            }
 
-            // Wait until video has dimensions
+            // Wait for video to be ready (has dimensions)
             await waitForVideoReady(video);
 
             toast('Camera active', 'info');
+
         } catch (error) {
             console.error('Camera access error:', error);
+
+            // Clean up stream if it was opened
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            state.mediaStream = null;
+
             const errText = $('cameraErrorText');
             if (errText) {
-                errText.textContent =
-                    error.name === 'NotAllowedError'
-                        ? 'Camera permission denied. Please allow camera access.'
-                        : error.name === 'NotFoundError'
-                        ? 'No camera found on this device.'
-                        : 'Unable to access camera. Please check permissions.';
+                let msg = 'Unable to access camera. Please check permissions.';
+                switch (error.name) {
+                    case 'NotAllowedError':
+                    case 'PermissionDeniedError':
+                        msg = 'Camera permission denied. Tap the lock icon in the address bar and allow camera.';
+                        break;
+                    case 'NotFoundError':
+                    case 'DevicesNotFoundError':
+                        msg = 'No camera found on this device.';
+                        break;
+                    case 'NotReadableError':
+                    case 'TrackStartError':
+                        msg = 'Camera is busy in another app. Close other apps and try again.';
+                        break;
+                    case 'OverconstrainedError':
+                        msg = 'Camera does not support requested settings.';
+                        break;
+                    case 'SecurityError':
+                        msg = 'Camera blocked. Make sure the page is served over HTTPS.';
+                        break;
+                }
+                errText.textContent = msg;
             }
             setSection('error');
             toast('Unable to access camera.', 'error');
-        }
-    }
-
-    function waitForVideoReady(video) {
-        return new Promise((resolve) => {
-            if (video.videoWidth > 0) return resolve();
-            const check = () => {
-                if (video.videoWidth > 0) resolve();
-                else requestAnimationFrame(check);
-            };
-            requestAnimationFrame(check);
-        });
-    }
-
-    function capturePhoto() {
-        const video  = $('cameraPreview');
-        const canvas = $('editorCanvas');
-        if (!video || !canvas) return;
-        if (!video.videoWidth || !video.videoHeight) {
-            toast('Camera is still starting. Please wait a moment.', 'error');
-            return;
-        }
-
-        canvas.width  = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        state.originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        state.currentImage  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        stopCamera();
-        setSection('editor');
-        toast('Photo captured successfully!', 'success');
-    }
-
-    function stopCamera() {
-        if (state.mediaStream) {
-            state.mediaStream.getTracks().forEach(track => track.stop());
-            state.mediaStream = null;
-        }
-        const video = $('cameraPreview');
-        if (video) video.srcObject = null;
-    }
+ }
+}
 
     /* =========================================================
        FILE UPLOAD
