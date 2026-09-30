@@ -1,0 +1,21 @@
+2026-09-30 06:37:52.509: [INFO] CurrentProfilePath: D:\WT Project\Scanify\.vscode\edge-profile\Default
+2026-09-30 06:37:52.509: [INFO] Profiles total count: 1
+2026-09-30 06:37:52.509: [INFO] Profile: name=Profile 1 path=D:\WT Project\Scanify\.vscode\edge-profile\Default lastActive=null
+2026-09-30 06:37:52.509: [INFO] LastUsedProfileDir: D:\WT Project\Scanify\.vscode\edge-profile\Default
+2026-09-30 06:37:52.509: [INFO] VisibilityChanged: 0
+2026-09-30 06:37:52.582: [INFO] OnDoneLoading sync enabled: 0
+2026-09-30 06:37:52.582: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-30 06:37:52.582: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-30 06:37:52.582: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-30 06:38:00.909: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-30 06:41:28.050: [INFO] CurrentProfilePath: D:\WT Project\Scanify\.vscode\edge-profile\Default
+2026-09-30 06:41:28.050: [INFO] Profiles total count: 1
+2026-09-30 06:41:28.050: [INFO] Profile: name=Personal path=D:\WT Project\Scanify\.vscode\edge-profile\Default lastActive=2026-09-30T06:38:34.404Z
+2026-09-30 06:41:28.051: [INFO] LastUsedProfileDir: D:\WT Project\Scanify\.vscode\edge-profile\Default
+2026-09-30 06:41:28.051: [INFO] MostRecentlyActiveProfile: name=Personal path=D:\WT Project\Scanify\.vscode\edge-profile\Default lastActive=2026-09-30T06:38:34.404Z
+2026-09-30 06:41:28.051: [INFO] VisibilityChanged: 0
+2026-09-30 06:41:28.131: [INFO] OnDoneLoading sync enabled: 0
+2026-09-30 06:41:28.131: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-30 06:41:28.131: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-30 06:41:28.131: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-30 06:41:36.633: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1

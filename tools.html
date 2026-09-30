@@ -2,224 +2,431 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tools - Scanify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Scanify Tools — Compress images, convert images to PDF, merge images and more, all in your browser.">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+
+    <title>Tools &amp; Utilities — Scanify</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📄%3C/text%3E%3C/svg%3E">
+
+    <!-- Anti-FOUC theme script -->
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('scanify-theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <!-- jsPDF (deferred) -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+        integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        defer
+    ></script>
 </head>
+
 <body>
-    <!-- Navigation Bar (Desktop) -->
-    <nav class="navbar desktop-nav">
+    <!-- ============ Skip Link ============ -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============ Desktop Navigation ============ -->
+    <nav class="navbar desktop-nav" aria-label="Primary navigation">
         <div class="navbar-container">
-            <div class="navbar-logo">
-                <i class="fas fa-file-scan"></i>
+            <a href="index.html" class="navbar-logo" aria-label="Scanify home">
+                <i class="fas fa-file-scan" aria-hidden="true"></i>
                 <span>Scanify</span>
-            </div>
+            </a>
+
             <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="scanner.html">Scanner</a></li>
                 <li><a href="documents.html">Documents</a></li>
-                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="tools.html" class="active" aria-current="page">Tools</a></li>
                 <li><a href="settings.html">Settings</a></li>
             </ul>
-            <button class="btn btn-primary nav-scan-btn" onclick="goToScanner()">
-                <i class="fas fa-plus"></i> Scan
+
+            <button
+                type="button"
+                class="btn btn-primary nav-scan-btn"
+                data-action="go-to-scanner"
+                aria-label="Start a new scan"
+            >
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                <span>Scan</span>
             </button>
         </div>
     </nav>
 
-    <!-- Bottom Navigation (Mobile) -->
-    <nav class="bottom-nav mobile-nav">
+    <!-- ============ Mobile Bottom Navigation ============ -->
+    <nav class="bottom-nav mobile-nav" aria-label="Mobile navigation">
         <a href="index.html" class="nav-item" data-page="home">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="documents.html" class="nav-item" data-page="documents">
-            <i class="fas fa-file"></i>
+            <i class="fas fa-file" aria-hidden="true"></i>
             <span>Documents</span>
         </a>
-        <button class="nav-fab" onclick="goToScanner()" title="Scan Document">
-            <i class="fas fa-plus"></i>
+
+        <button
+            type="button"
+            class="nav-fab"
+            data-action="go-to-scanner"
+            aria-label="Scan a document"
+            title="Scan Document"
+        >
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
-        <a href="tools.html" class="nav-item active" data-page="tools">
-            <i class="fas fa-tools"></i>
+
+        <a href="tools.html" class="nav-item active" data-page="tools" aria-current="page">
+            <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Tools</span>
         </a>
         <a href="settings.html" class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container">
-        <h1>Tools & Utilities</h1>
-        <p class="section-subtitle">Powerful document processing tools at your fingertips</p>
+    <!-- ============ Main Content ============ -->
+    <main id="main-content" class="container">
+        <header class="page-header">
+            <h1 class="page-title">Tools &amp; Utilities</h1>
+            <p class="section-subtitle">Powerful document processing tools at your fingertips</p>
+        </header>
 
-        <div class="tools-grid">
-            <!-- Tool 1: Document Scanner -->
-            <div class="tool-card">
+        <!-- ========== Tools Grid ========== -->
+        <section class="tools-grid" aria-label="Available tools">
+            <!-- Document Scanner -->
+            <article class="tool-card">
                 <div class="tool-icon">
-                    <i class="fas fa-camera"></i>
+                    <i class="fas fa-camera" aria-hidden="true"></i>
                 </div>
                 <h3>Document Scanner</h3>
                 <p>Scan documents using your camera or upload an image directly.</p>
-                <button class="btn btn-primary" onclick="goToScanner()">
-                    <i class="fas fa-arrow-right"></i> Open Scanner
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="go-to-scanner"
+                >
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <span>Open Scanner</span>
                 </button>
-            </div>
+            </article>
 
-            <!-- Tool 2: Image Compression -->
-            <div class="tool-card">
+            <!-- Image Compression -->
+            <article class="tool-card">
                 <div class="tool-icon">
-                    <i class="fas fa-compress"></i>
+                    <i class="fas fa-compress" aria-hidden="true"></i>
                 </div>
                 <h3>Image Compression</h3>
                 <p>Compress images to reduce file size while maintaining quality.</p>
-                <button class="btn btn-primary" onclick="openCompressionTool()">
-                    <i class="fas fa-arrow-right"></i> Open Tool
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="open-compression-tool"
+                >
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <span>Open Tool</span>
                 </button>
-            </div>
+            </article>
 
-            <!-- Tool 3: Image to PDF -->
-            <div class="tool-card">
+            <!-- Image to PDF -->
+            <article class="tool-card">
                 <div class="tool-icon">
-                    <i class="fas fa-file-pdf"></i>
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
                 </div>
                 <h3>Image to PDF</h3>
                 <p>Convert one or multiple images into a professional PDF document.</p>
-                <button class="btn btn-primary" onclick="openImageToPdfTool()">
-                    <i class="fas fa-arrow-right"></i> Open Tool
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="open-image-to-pdf-tool"
+                >
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <span>Open Tool</span>
                 </button>
-            </div>
+            </article>
 
-            <!-- Tool 4: Merge Images -->
-            <div class="tool-card">
+            <!-- Merge Images -->
+            <article class="tool-card">
                 <div class="tool-icon">
-                    <i class="fas fa-images"></i>
+                    <i class="fas fa-images" aria-hidden="true"></i>
                 </div>
                 <h3>Merge Images</h3>
                 <p>Combine multiple images into a single document.</p>
-                <button class="btn btn-primary" onclick="openMergeTool()">
-                    <i class="fas fa-arrow-right"></i> Open Tool
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="open-merge-tool"
+                >
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <span>Open Tool</span>
                 </button>
-            </div>
+            </article>
 
-            <!-- Tool 5: Quick Scan -->
-            <div class="tool-card">
+            <!-- Quick Scan -->
+            <article class="tool-card">
                 <div class="tool-icon">
-                    <i class="fas fa-bolt"></i>
+                    <i class="fas fa-bolt" aria-hidden="true"></i>
                 </div>
                 <h3>Quick Scan</h3>
                 <p>Direct shortcut to open the scanner immediately.</p>
-                <button class="btn btn-primary" onclick="goToScanner()">
-                    <i class="fas fa-arrow-right"></i> Start Scan
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="go-to-scanner"
+                >
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <span>Start Scan</span>
+                </button>
+            </article>
+        </section>
+    </main>
+
+    <!-- ============ Compression Modal ============ -->
+    <div
+        id="compressionModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compressionTitle"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="compression"></div>
+
+        <div class="modal-content modal-large" role="document">
+            <div class="modal-header">
+                <h2 id="compressionTitle">Image Compression</h2>
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="compression"
+                    aria-label="Close compression dialog"
+                >
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="compression-section">
+                    <h3>Select Image</h3>
+                    <label for="compressionInput" class="form-label sr-only">Choose an image to compress</label>
+                    <input
+                        type="file"
+                        id="compressionInput"
+                        accept="image/*"
+                        class="form-input"
+                    >
+                </div>
+
+                <div class="compression-section" id="compressionControls" hidden>
+                    <h3>Compression Quality</h3>
+
+                    <div class="quality-control">
+                        <label for="qualitySlider" class="sr-only">Compression quality</label>
+                        <input
+                            type="range"
+                            id="qualitySlider"
+                            min="10"
+                            max="100"
+                            value="80"
+                            aria-valuemin="10"
+                            aria-valuemax="100"
+                            aria-valuenow="80"
+                        >
+                        <output id="qualityValue" for="qualitySlider">80%</output>
+                    </div>
+
+                    <small class="text-muted">
+                        Original Size: <span id="originalSize">—</span>
+                        &nbsp;|&nbsp;
+                        Compressed Size: <span id="compressedSize">—</span>
+                    </small>
+                </div>
+
+                <div class="compression-preview" id="compressionPreview" hidden>
+                    <h3>Preview</h3>
+                    <canvas id="compressionCanvas" aria-label="Compressed image preview"></canvas>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="downloadCompressionBtn"
+                    data-action="download-compressed"
+                    hidden
+                >
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    <span>Download Compressed Image</span>
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-close-modal="compression"
+                >
+                    Close
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Compression Tool Modal -->
-        <div id="compressionModal" class="modal" style="display: none;">
-            <div class="modal-content modal-large">
-                <div class="modal-header">
-                    <h2>Image Compression</h2>
-                    <button class="modal-close" onclick="closeCompressionModal()">×</button>
+    <!-- ============ Image to PDF Modal ============ -->
+    <div
+        id="imageToPdfModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="imageToPdfTitle"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="image-to-pdf"></div>
+
+        <div class="modal-content modal-large" role="document">
+            <div class="modal-header">
+                <h2 id="imageToPdfTitle">Image to PDF</h2>
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="image-to-pdf"
+                    aria-label="Close Image to PDF dialog"
+                >
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="pdf-section">
+                    <h3>Select Images</h3>
+                    <label for="pdfInput" class="form-label sr-only">Choose one or more images</label>
+                    <input
+                        type="file"
+                        id="pdfInput"
+                        accept="image/*"
+                        multiple
+                        class="form-input"
+                    >
+                    <small class="text-muted">You can select multiple images</small>
                 </div>
-                <div class="modal-body">
-                    <div class="compression-section">
-                        <h3>Select Image</h3>
-                        <input type="file" id="compressionInput" accept="image/*" onchange="loadCompressionImage(event)" class="form-input">
-                    </div>
 
-                    <div class="compression-section" id="compressionControls" style="display: none;">
-                        <h3>Compression Quality</h3>
-                        <div class="quality-control">
-                            <input type="range" id="qualitySlider" min="10" max="100" value="80" onchange="updateCompressionQuality(this.value)">
-                            <span id="qualityValue">80%</span>
-                        </div>
-                        <small>Original Size: <span id="originalSize">-</span> | Compressed Size: <span id="compressedSize">-</span></small>
-                    </div>
-
-                    <div class="compression-preview" id="compressionPreview" style="display: none;">
-                        <h3>Preview</h3>
-                        <canvas id="compressionCanvas"></canvas>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="downloadCompressionBtn" style="display: none;" onclick="downloadCompressed()">
-                        <i class="fas fa-download"></i> Download Compressed Image
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeCompressionModal()">Close</button>
+                <div class="pdf-preview" id="pdfPreview" hidden>
+                    <h3>Selected Images</h3>
+                    <div id="pdfImageList" class="image-list"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Image to PDF Modal -->
-        <div id="imageToPdfModal" class="modal" style="display: none;">
-            <div class="modal-content modal-large">
-                <div class="modal-header">
-                    <h2>Image to PDF</h2>
-                    <button class="modal-close" onclick="closeImageToPdfModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="pdf-section">
-                        <h3>Select Images</h3>
-                        <input type="file" id="pdfInput" accept="image/*" multiple onchange="loadPdfImages(event)" class="form-input">
-                        <small>You can select multiple images</small>
-                    </div>
-
-                    <div class="pdf-preview" id="pdfPreview" style="display: none;">
-                        <h3>Selected Images</h3>
-                        <div id="pdfImageList" class="image-list"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="generatePdfBtn" style="display: none;" onclick="generatePdf()">
-                        <i class="fas fa-file-pdf"></i> Generate PDF
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeImageToPdfModal()">Close</button>
-                </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="generatePdfBtn"
+                    data-action="generate-pdf"
+                    hidden
+                >
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    <span>Generate PDF</span>
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-close-modal="image-to-pdf"
+                >
+                    Close
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- Merge Images Modal -->
-        <div id="mergeModal" class="modal" style="display: none;">
-            <div class="modal-content modal-large">
-                <div class="modal-header">
-                    <h2>Merge Images</h2>
-                    <button class="modal-close" onclick="closeMergeModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="merge-section">
-                        <h3>Select Images</h3>
-                        <input type="file" id="mergeInput" accept="image/*" multiple onchange="loadMergeImages(event)" class="form-input">
-                        <small>Select multiple images to merge</small>
-                    </div>
+    <!-- ============ Merge Images Modal ============ -->
+    <div
+        id="mergeModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mergeTitle"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="merge"></div>
 
-                    <div class="merge-preview" id="mergePreview" style="display: none;">
-                        <h3>Selected Images</h3>
-                        <div id="mergeImageList" class="image-list"></div>
-                    </div>
+        <div class="modal-content modal-large" role="document">
+            <div class="modal-header">
+                <h2 id="mergeTitle">Merge Images</h2>
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="merge"
+                    aria-label="Close merge dialog"
+                >
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="merge-section">
+                    <h3>Select Images</h3>
+                    <label for="mergeInput" class="form-label sr-only">Choose images to merge</label>
+                    <input
+                        type="file"
+                        id="mergeInput"
+                        accept="image/*"
+                        multiple
+                        class="form-input"
+                    >
+                    <small class="text-muted">Select multiple images to merge</small>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="mergeImagesBtn" style="display: none;" onclick="mergImages()">
-                        <i class="fas fa-images"></i> Merge Images
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeMergeModal()">Close</button>
+
+                <div class="merge-preview" id="mergePreview" hidden>
+                    <h3>Selected Images</h3>
+                    <div id="mergeImageList" class="image-list"></div>
                 </div>
             </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="mergeImagesBtn"
+                    data-action="merge-images"
+                    hidden
+                >
+                    <i class="fas fa-images" aria-hidden="true"></i>
+                    <span>Merge Images</span>
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-close-modal="merge"
+                >
+                    Close
+                </button>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <!-- ============ Toast ============ -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- Hidden Inputs -->
-    <input type="file" id="hiddenCompressionFile" accept="image/*" style="display: none;">
-    <a id="hiddenDownloadLink" style="display: none;"></a>
-
-    <script src="js/app.js"></script>
-    <script src="js/tools.js"></script>
+    <!-- ============ Scripts ============ -->
+    <script src="js/app.js" defer></script>
+    <script src="js/tools.js" defer></script>
 </body>
-</html>
+</html>>

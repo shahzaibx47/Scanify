@@ -1,407 +1,701 @@
-// ===== SCANIFY SCANNER.JS =====
-// Camera, image loading, and editing functionality
+/* =========================================================
+   Scanify — Scanner Page Script
+   File: js/scanner.js
+   Handles: Camera, File Upload, Canvas editing, Filters,
+            Crop, Rotate, Save to storage
+   ========================================================= */
 
-let currentImage = null;
-let originalImage = null;
-let currentFilter = 'original';
-let isCropping = false;
-let cropStartX = 0;
-let cropStartY = 0;
-let cropEndX = 0;
-let cropEndY = 0;
+(function () {
+    'use strict';
 
-// ===== INITIALIZATION =====
+    /* ---------- Constants ---------- */
+    const MAX_FILE_SIZE_MB   = 25;
+    const MAX_FILE_SIZE      = MAX_FILE_SIZE_MB * 1024 * 1024;
+    const ACCEPTED_TYPES     = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+    const JPEG_EXPORT_QUALITY = 0.90;
+    const CROP_MIN_SIZE      = 20;   // in pixels
 
-document.addEventListener('DOMContentLoaded', () => {
-    initScanner();
-});
-
-function initScanner() {
-    const scanOptions = document.getElementById('scanOptions');
-    if (scanOptions) {
-        scanOptions.style.display = 'flex';
-    }
-}
-
-// ===== CAMERA FUNCTIONS =====
-
-/**
- * Open device camera
- */
-function openCamera() {
-    const video = document.getElementById('cameraPreview');
-    const cameraSection = document.getElementById('cameraSection');
-    const scanOptions = document.getElementById('scanOptions');
-    
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast('Camera is not supported on this device');
-        return;
-    }
-    
-    navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' },
-        audio: false
-    }).then(stream => {
-        scanOptions.style.display = 'none';
-        cameraSection.style.display = 'flex';
-        video.srcObject = stream;
-    }).catch(error => {
-        showToast('Unable to access camera. Please check permissions.');
-        console.error('Camera error:', error);
-    });
-}
-
-/**
- * Capture photo from camera
- */
-function capturePhoto() {
-    const video = document.getElementById('cameraPreview');
-    const canvas = document.getElementById('editorCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw video frame to canvas
-    ctx.drawImage(video, 0, 0);
-    
-    // Store original for reset
-    originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    // Stop camera
-    stopCamera();
-    
-    // Show editor
-    document.getElementById('editorSection').style.display = 'block';
-}
-
-/**
- * Stop camera and close camera section
- */
-function stopCamera() {
-    const video = document.getElementById('cameraPreview');
-    if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-    }
-    document.getElementById('cameraSection').style.display = 'none';
-}
-
-// ===== FILE UPLOAD FUNCTIONS =====
-
-/**
- * Load image from file input
- */
-function loadImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.getElementById('editorCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            // Draw image
-            ctx.drawImage(img, 0, 0);
-            
-            // Store original
-            originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // Show editor
-            document.getElementById('scanOptions').style.display = 'none';
-            document.getElementById('editorSection').style.display = 'block';
-            document.getElementById('cameraSection').style.display = 'none';
-            
-            showToast('Image loaded successfully');
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-// ===== IMAGE EDITING FUNCTIONS =====
-
-/**
- * Rotate image 90 degrees clockwise
- */
-function rotateImage() {
-    const canvas = document.getElementById('editorCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Create new canvas with swapped dimensions
-    const newCanvas = document.createElement('canvas');
-    newCanvas.width = canvas.height;
-    newCanvas.height = canvas.width;
-    const newCtx = newCanvas.getContext('2d');
-    
-    // Rotate and draw
-    newCtx.translate(newCanvas.width, 0);
-    newCtx.rotate(Math.PI / 2);
-    newCtx.drawImage(canvas, 0, 0);
-    
-    // Update main canvas
-    canvas.width = newCanvas.width;
-    canvas.height = newCanvas.height;
-    ctx.drawImage(newCanvas, 0, 0);
-    
-    currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    showToast('Image rotated');
-}
-
-/**
- * Apply filter to image
- */
-function applyFilter(filterType) {
-    currentFilter = filterType;
-    const canvas = document.getElementById('editorCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Reset to original
-    if (originalImage) {
-        ctx.putImageData(originalImage, 0, 0);
-    }
-    
-    if (filterType === 'original') {
-        currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        return;
-    }
-    
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    if (filterType === 'grayscale') {
-        applyGrayscale(data);
-    } else if (filterType === 'bw') {
-        applyBlackAndWhite(data);
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-    currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-}
-
-/**
- * Apply grayscale filter
- */
-function applyGrayscale(data) {
-    for (let i = 0; i < data.length; i += 4) {
-        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        data[i] = gray;
-        data[i + 1] = gray;
-        data[i + 2] = gray;
-    }
-}
-
-/**
- * Apply black and white filter
- */
-function applyBlackAndWhite(data) {
-    for (let i = 0; i < data.length; i += 4) {
-        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        const bw = gray > 128 ? 255 : 0;
-        data[i] = bw;
-        data[i + 1] = bw;
-        data[i + 2] = bw;
-    }
-}
-
-/**
- * Reset image to original
- */
-function resetImage() {
-    const canvas = document.getElementById('editorCanvas');
-    const ctx = canvas.getContext('2d');
-    const filterSelect = document.getElementById('filterSelect');
-    
-    if (originalImage) {
-        ctx.putImageData(originalImage, 0, 0);
-        currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        filterSelect.value = 'original';
-        currentFilter = 'original';
-        showToast('Image reset to original');
-    }
-}
-
-/**
- * Enable crop mode
- */
-function enableCrop() {
-    const canvas = document.getElementById('editorCanvas');
-    const cropCanvas = document.getElementById('cropCanvas');
-    const cropModal = document.getElementById('cropModal');
-    
-    // Copy current canvas to crop canvas
-    const ctx = canvas.getContext('2d');
-    const cropCtx = cropCanvas.getContext('2d');
-    
-    cropCanvas.width = canvas.width;
-    cropCanvas.height = canvas.height;
-    cropCtx.drawImage(canvas, 0, 0);
-    
-    // Show crop modal
-    cropModal.style.display = 'flex';
-    
-    // Add crop selection functionality
-    setupCropSelection(cropCanvas);
-}
-
-/**
- * Setup crop selection on canvas
- */
-function setupCropSelection(canvas) {
-    const rect = canvas.getBoundingClientRect();
-    isCropping = true;
-    
-    canvas.addEventListener('mousedown', (e) => {
-        cropStartX = e.clientX - rect.left;
-        cropStartY = e.clientY - rect.top;
-    });
-    
-    canvas.addEventListener('mousemove', (e) => {
-        if (isCropping) {
-            cropEndX = e.clientX - rect.left;
-            cropEndY = e.clientY - rect.top;
-            
-            // Redraw with selection rectangle
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(canvas, 0, 0);
-            
-            ctx.strokeStyle = '#4338CA';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(
-                Math.min(cropStartX, cropEndX),
-                Math.min(cropStartY, cropEndY),
-                Math.abs(cropEndX - cropStartX),
-                Math.abs(cropEndY - cropStartY)
-            );
+    /* ---------- State ---------- */
+    const state = {
+        currentImage:  null,   // ImageData (edited)
+        originalImage: null,   // ImageData (for non-destructive edits)
+        currentFilter: 'original',
+        mediaStream:   null,
+        crop: {
+            active: false,
+            startX: 0,
+            startY: 0,
+            endX:   0,
+            endY:   0,
+            listeners: null
         }
-    });
-    
-    canvas.addEventListener('mouseup', () => {
-        isCropping = false;
-    });
-}
+    };
 
-/**
- * Apply crop to image
- */
-function applyCrop() {
-    const canvas = document.getElementById('editorCanvas');
-    const cropCanvas = document.getElementById('cropCanvas');
-    const cropCtx = cropCanvas.getContext('2d');
-    
-    const x = Math.min(cropStartX, cropEndX);
-    const y = Math.min(cropStartY, cropEndY);
-    const width = Math.abs(cropEndX - cropStartX);
-    const height = Math.abs(cropEndY - cropStartY);
-    
-    if (width < 10 || height < 10) {
-        showToast('Please select a larger area');
-        return;
+    /* =========================================================
+       UTILITIES
+       ========================================================= */
+
+    function toast(msg, type) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(msg, type);
+        } else {
+            console.log(`[${type || 'info'}] ${msg}`);
+        }
     }
-    
-    // Get cropped image data
-    const imageData = cropCtx.getImageData(x, y, width, height);
-    
-    // Update main canvas
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    ctx.putImageData(imageData, 0, 0);
-    
-    currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    closeCropModal();
-    showToast('Image cropped successfully');
-}
 
-/**
- * Close crop modal
- */
-function closeCropModal() {
-    document.getElementById('cropModal').style.display = 'none';
-    isCropping = false;
-}
+    function $(id) { return document.getElementById(id); }
 
-// ===== SAVE FUNCTIONS =====
-
-/**
- * Save document
- */
-function saveDocument() {
-    const saveModal = document.getElementById('saveModal');
-    saveModal.style.display = 'flex';
-}
-
-/**
- * Confirm and save document
- */
-function confirmSave() {
-    const docName = document.getElementById('docName').value.trim();
-    
-    if (!docName) {
-        showToast('Please enter a document name');
-        return;
+    function isValidImage(file) {
+        if (!file) return { ok: false, reason: 'No file selected.' };
+        if (!ACCEPTED_TYPES.includes(file.type)) {
+            return { ok: false, reason: `"${file.name}" is not a supported image.` };
+        }
+        if (file.size > MAX_FILE_SIZE) {
+            return { ok: false, reason: `"${file.name}" exceeds ${MAX_FILE_SIZE_MB} MB.` };
+        }
+        return { ok: true };
     }
-    
-    const canvas = document.getElementById('editorCanvas');
-    const imageData = canvas.toDataURL('image/jpeg', 0.95);
-    
-    // Save to localStorage
-    const doc = saveDocument(docName, imageData, 'JPG');
-    
-    closeSaveModal();
-    showToast(`Document "${docName}" saved successfully`);
-    
-    // Reset form
-    setTimeout(() => {
-        backToOptions();
-        document.getElementById('docName').value = '';
-    }, 1000);
-}
 
-/**
- * Close save modal
- */
-function closeSaveModal() {
-    document.getElementById('saveModal').style.display = 'none';
-}
+    function setSection(name) {
+        // name: 'options' | 'camera' | 'editor'
+        const map = {
+            options: $('scanOptions'),
+            camera:  $('cameraSection'),
+            editor:  $('editorSection'),
+            error:   $('cameraError')
+        };
 
-/**
- * Go back to scan options
- */
-function backToOptions() {
-    document.getElementById('scanOptions').style.display = 'flex';
-    document.getElementById('editorSection').style.display = 'none';
-    document.getElementById('cameraSection').style.display = 'none';
-    document.getElementById('filterSelect').value = 'original';
-    
-    currentFilter = 'original';
-    currentImage = null;
-    originalImage = null;
-}
+        Object.entries(map).forEach(([key, el]) => {
+            if (!el) return;
+            el.hidden = key !== name;
+        });
+    }
 
-/**
- * Show scan options modal
- */
-function showScanOptions() {
-    const scanOptions = document.getElementById('scanOptions');
-    const editorSection = document.getElementById('editorSection');
-    
-    if (editorSection.style.display !== 'none') {
-        // Currently in editor, go back
-        backToOptions();
+    /* =========================================================
+       CAMERA
+       ========================================================= */
+
+    async function openCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            toast('Camera is not supported on this device or browser', 'error');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    width:  { ideal: 1920 },
+                    height: { ideal: 1080 }
+                },
+                audio: false
+            });
+
+            const video = $('cameraPreview');
+            if (!video) {
+                stream.getTracks().forEach(t => t.stop());
+                return;
+            }
+
+            state.mediaStream = stream;
+            video.srcObject = stream;
+            setSection('camera');
+
+            await video.play().catch(() => {});
+
+            // Wait until video has dimensions
+            await waitForVideoReady(video);
+
+            toast('Camera active', 'info');
+        } catch (error) {
+            console.error('Camera access error:', error);
+            const errText = $('cameraErrorText');
+            if (errText) {
+                errText.textContent =
+                    error.name === 'NotAllowedError'
+                        ? 'Camera permission denied. Please allow camera access.'
+                        : error.name === 'NotFoundError'
+                        ? 'No camera found on this device.'
+                        : 'Unable to access camera. Please check permissions.';
+            }
+            setSection('error');
+            toast('Unable to access camera.', 'error');
+        }
+    }
+
+    function waitForVideoReady(video) {
+        return new Promise((resolve) => {
+            if (video.videoWidth > 0) return resolve();
+            const check = () => {
+                if (video.videoWidth > 0) resolve();
+                else requestAnimationFrame(check);
+            };
+            requestAnimationFrame(check);
+        });
+    }
+
+    function capturePhoto() {
+        const video  = $('cameraPreview');
+        const canvas = $('editorCanvas');
+        if (!video || !canvas) return;
+        if (!video.videoWidth || !video.videoHeight) {
+            toast('Camera is still starting. Please wait a moment.', 'error');
+            return;
+        }
+
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        state.originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        state.currentImage  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        stopCamera();
+        setSection('editor');
+        toast('Photo captured successfully!', 'success');
+    }
+
+    function stopCamera() {
+        if (state.mediaStream) {
+            state.mediaStream.getTracks().forEach(track => track.stop());
+            state.mediaStream = null;
+        }
+        const video = $('cameraPreview');
+        if (video) video.srcObject = null;
+    }
+
+    /* =========================================================
+       FILE UPLOAD
+       ========================================================= */
+
+    function loadImage(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const check = isValidImage(file);
+        if (!check.ok) {
+            toast(check.reason, 'error');
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = $('editorCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width  = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                ctx.drawImage(img, 0, 0);
+
+                state.originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                state.currentImage  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                setSection('editor');
+                toast('Document image loaded', 'success');
+            };
+            img.onerror = () => {
+                toast('Failed to decode image file.', 'error');
+            };
+            img.src = e.target.result;
+        };
+        reader.onerror = () => toast('Failed to read file.', 'error');
+        reader.readAsDataURL(file);
+    }
+
+    /* =========================================================
+       EDITING: ROTATE / FILTERS / RESET
+       ========================================================= */
+
+    function rotateImage() {
+        const canvas = $('editorCanvas');
+        if (!canvas || !state.originalImage) return;
+
+        const ctx = canvas.getContext('2d');
+        const tmp = document.createElement('canvas');
+        tmp.width  = canvas.height;
+        tmp.height = canvas.width;
+
+        const tmpCtx = tmp.getContext('2d');
+        tmpCtx.translate(tmp.width, 0);
+        tmpCtx.rotate(Math.PI / 2);
+        tmpCtx.drawImage(canvas, 0, 0);
+
+        canvas.width  = tmp.width;
+        canvas.height = tmp.height;
+        ctx.drawImage(tmp, 0, 0);
+
+        state.originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        state.currentImage  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Reset filter select because rotation is now the new base
+        const filterSel = $('filterSelect');
+        if (filterSel) filterSel.value = 'original';
+        state.currentFilter = 'original';
+
+        toast('Image rotated 90°', 'info');
+    }
+
+    function applyFilter(filterType) {
+        state.currentFilter = filterType;
+        const canvas = $('editorCanvas');
+        if (!canvas || !state.originalImage) return;
+
+        const ctx = canvas.getContext('2d');
+        // Always restore original before applying a new filter
+        ctx.putImageData(state.originalImage, 0, 0);
+
+        if (filterType === 'original') {
+            state.currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            return;
+        }
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        switch (filterType) {
+            case 'grayscale': applyGrayscale(data); break;
+            case 'bw':        applyBlackAndWhite(data); break;
+            case 'sepia':     applySepia(data); break;
+            case 'brightness':applyBrightness(data); break;
+            case 'magic':     applyMagicEnhance(data); break;
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        state.currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    function applyGrayscale(data) {
+        for (let i = 0; i < data.length; i += 4) {
+            const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            data[i] = data[i + 1] = data[i + 2] = gray;
+        }
+    }
+
+    function applyBlackAndWhite(data) {
+        for (let i = 0; i < data.length; i += 4) {
+            const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            const bw = gray > 128 ? 255 : 0;
+            data[i] = data[i + 1] = data[i + 2] = bw;
+        }
+    }
+
+    function applySepia(data) {
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            data[i]     = Math.min(255, 0.393 * r + 0.769 * g + 0.189 * b);
+            data[i + 1] = Math.min(255, 0.349 * r + 0.686 * g + 0.168 * b);
+            data[i + 2] = Math.min(255, 0.272 * r + 0.534 * g + 0.131 * b);
+        }
+    }
+
+    function applyBrightness(data) {
+        const boost = 1.20;
+        for (let i = 0; i < data.length; i += 4) {
+            data[i]     = Math.min(255, data[i]     * boost);
+            data[i + 1] = Math.min(255, data[i + 1] * boost);
+            data[i + 2] = Math.min(255, data[i + 2] * boost);
+        }
+    }
+
+    function applyMagicEnhance(data) {
+        const contrast = 1.4;
+        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i], g = data[i + 1], b = data[i + 2];
+
+            r = factor * (r - 128) + 128;
+            g = factor * (g - 128) + 128;
+            b = factor * (b - 128) + 128;
+
+            if (r > 160 && g > 160 && b > 160) {
+                r = Math.min(255, r * 1.15);
+                g = Math.min(255, g * 1.15);
+                b = Math.min(255, b * 1.15);
+            }
+
+            data[i]     = Math.min(255, Math.max(0, r));
+            data[i + 1] = Math.min(255, Math.max(0, g));
+            data[i + 2] = Math.min(255, Math.max(0, b));
+        }
+    }
+
+    function resetImage() {
+        const canvas = $('editorCanvas');
+        if (!canvas || !state.originalImage) return;
+
+        const ctx = canvas.getContext('2d');
+        ctx.putImageData(state.originalImage, 0, 0);
+        state.currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        const filterSel = $('filterSelect');
+        if (filterSel) filterSel.value = 'original';
+        state.currentFilter = 'original';
+
+        toast('Image reset to original', 'info');
+    }
+
+    /* =========================================================
+       CROP ENGINE
+       ========================================================= */
+
+    function enableCrop() {
+        const canvas = $('editorCanvas');
+        const cropCanvas = $('cropCanvas');
+        if (!canvas || !cropCanvas) return;
+
+        cropCanvas.width  = canvas.width;
+        cropCanvas.height = canvas.height;
+        cropCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+        setCropModal(true);
+        setupCropSelection(cropCanvas);
+    }
+
+    function setCropModal(open) {
+        const modal = $('cropModal');
+        if (!modal) return;
+        modal.hidden = !open;
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    function setupCropSelection(canvas) {
+        // Reset crop coords
+        state.crop.startX = state.crop.startY = 0;
+        state.crop.endX   = state.crop.endY   = 0;
+        state.crop.active = false;
+
+        const getPos = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top)  * scaleY
+            };
+        };
+
+        const onStart = (e) => {
+            e.preventDefault();
+            state.crop.active = true;
+            const pos = getPos(e);
+            state.crop.startX = pos.x;
+            state.crop.startY = pos.y;
+            state.crop.endX = pos.x;
+            state.crop.endY = pos.y;
+        };
+
+        const onMove = (e) => {
+            if (!state.crop.active) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            state.crop.endX = pos.x;
+            state.crop.endY = pos.y;
+            redrawCropOverlay(canvas);
+        };
+
+        const onEnd = () => { state.crop.active = false; };
+
+        // Use addEventListener so we can remove them later
+        const opts = { passive: false };
+        canvas.addEventListener('mousedown', onStart, opts);
+        canvas.addEventListener('mousemove', onMove, opts);
+        canvas.addEventListener('mouseup',   onEnd, opts);
+        canvas.addEventListener('mouseleave', onEnd, opts);
+
+        canvas.addEventListener('touchstart', onStart, opts);
+        canvas.addEventListener('touchmove',  onMove, opts);
+        canvas.addEventListener('touchend',   onEnd, opts);
+
+        // Save listeners so we can remove them in cleanup
+        state.crop.listeners = { canvas, onStart, onMove, onEnd, opts };
+    }
+
+    function redrawCropOverlay(canvas) {
+        const mainCanvas = $('editorCanvas');
+        if (!mainCanvas) return;
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(mainCanvas, 0, 0);
+
+        const x = Math.min(state.crop.startX, state.crop.endX);
+        const y = Math.min(state.crop.startY, state.crop.endY);
+        const w = Math.abs(state.crop.endX - state.crop.startX);
+        const h = Math.abs(state.crop.endY - state.crop.startY);
+
+        // Dim outside area
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(x, y, w, h);
+        ctx.drawImage(mainCanvas, x, y, w, h, x, y, w, h);
+
+        // Dashed border
+        ctx.strokeStyle = '#2563EB';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(x, y, w, h);
+        ctx.restore();
+    }
+
+    function applyCrop() {
+        const canvas = $('editorCanvas');
+        const cropCanvas = $('cropCanvas');
+        if (!canvas || !cropCanvas) return;
+
+        const x = Math.min(state.crop.startX, state.crop.endX);
+        const y = Math.min(state.crop.startY, state.crop.endY);
+        const w = Math.abs(state.crop.endX - state.crop.startX);
+        const h = Math.abs(state.crop.endY - state.crop.startY);
+
+        if (w < CROP_MIN_SIZE || h < CROP_MIN_SIZE) {
+            toast('Selection area too small', 'error');
+            return;
+        }
+
+        try {
+            const cropCtx = cropCanvas.getContext('2d');
+            const croppedData = cropCtx.getImageData(
+                Math.round(x), Math.round(y),
+                Math.round(w), Math.round(h)
+            );
+
+            canvas.width  = Math.round(w);
+            canvas.height = Math.round(h);
+            canvas.getContext('2d').putImageData(croppedData, 0, 0);
+
+            state.originalImage = canvas.getContext('2d')
+                .getImageData(0, 0, canvas.width, canvas.height);
+            state.currentImage = state.originalImage;
+
+            // Reset filter since crop is new base
+            const filterSel = $('filterSelect');
+            if (filterSel) filterSel.value = 'original';
+            state.currentFilter = 'original';
+
+            closeCropModal();
+            toast('Crop applied successfully', 'success');
+        } catch (err) {
+            console.error(err);
+            toast('Crop failed. Please try again.', 'error');
+        }
+    }
+
+    function closeCropModal() {
+        // Remove crop listeners
+        const l = state.crop.listeners;
+        if (l) {
+            l.canvas.removeEventListener('mousedown', l.onStart);
+            l.canvas.removeEventListener('mousemove', l.onMove);
+            l.canvas.removeEventListener('mouseup',   l.onEnd);
+            l.canvas.removeEventListener('mouseleave',l.onEnd);
+            l.canvas.removeEventListener('touchstart', l.onStart);
+            l.canvas.removeEventListener('touchmove',  l.onMove);
+            l.canvas.removeEventListener('touchend',   l.onEnd);
+            state.crop.listeners = null;
+        }
+        state.crop.active = false;
+        setCropModal(false);
+    }
+
+    /* =========================================================
+       SAVE DOCUMENT
+       ========================================================= */
+
+    function openSaveModal() {
+        const modal = $('saveModal');
+        if (!modal) return;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        const input = $('docName');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function closeSaveModal() {
+        const modal = $('saveModal');
+        if (!modal) return;
+        modal.hidden = true;
+        document.body.style.overflow = '';
+    }
+
+    /**
+     * Save handler — matches the schema used by documents.js and index.html:
+     *   { id, name, createdAt, imageData, fileType }
+     */
+    function confirmSave() {
+        const nameInput = $('docName');
+        const docName = nameInput ? nameInput.value.trim() : '';
+
+        if (!docName) {
+            toast('Please enter a document name', 'error');
+            if (nameInput) nameInput.focus();
+            return;
+        }
+
+        const canvas = $('editorCanvas');
+        if (!canvas) return;
+
+        let imageDataUrl;
+        try {
+            imageDataUrl = canvas.toDataURL('image/jpeg', JPEG_EXPORT_QUALITY);
+        } catch (err) {
+            console.error(err);
+            toast('Failed to export image.', 'error');
+            return;
+        }
+
+        const doc = {
+            id:         'doc_' + Date.now(),
+            name:       docName,                       // ← matches documents.html
+            createdAt:  Date.now(),                    // ← matches documents.html
+            imageData:  imageDataUrl,                  // ← matches documents.html
+            fileType:   'JPG'                          // ← matches documents.html
+        };
+
+        // Prefer app.js save function if available
+        let saved = false;
+        if (typeof window.saveDocument === 'function') {
+            saved = window.saveDocument(doc);
+        } else {
+            saved = saveDocumentFallback(doc);
+        }
+
+        if (!saved) {
+            toast('Storage full! Clear old scans.', 'error');
+            return;
+        }
+
+        closeSaveModal();
+        toast(`"${docName}" saved in Documents!`, 'success');
+
+        setTimeout(() => {
+            if (nameInput) nameInput.value = '';
+            backToOptions();
+        }, 800);
+    }
+
+    /** Fallback if app.js is not available */
+    function saveDocumentFallback(doc) {
+        try {
+            const stored = JSON.parse(localStorage.getItem('scanify_docs') || '[]');
+            stored.unshift(doc);
+            localStorage.setItem('scanify_docs', JSON.stringify(stored));
+            return true;
+        } catch (err) {
+            console.error('Storage error:', err);
+            return false;
+        }
+    }
+
+    function backToOptions() {
+        setSection('options');
+
+        const filterSel = $('filterSelect');
+        if (filterSel) filterSel.value = 'original';
+
+        state.currentFilter = 'original';
+        state.currentImage = null;
+        state.originalImage = null;
+    }
+
+    /* =========================================================
+       EVENT DELEGATION
+       ========================================================= */
+
+    function handleClick(event) {
+        // data-action buttons
+        const actionEl = event.target.closest('[data-action]');
+        if (actionEl) {
+            const action = actionEl.dataset.action;
+            switch (action) {
+                case 'show-scan-options':     setSection('options'); return;
+                case 'open-camera':           openCamera();          return;
+                case 'trigger-file-input':    $('fileInput')?.click(); return;
+                case 'capture-photo':         capturePhoto();        return;
+                case 'stop-camera':           stopCamera(); setSection('options'); return;
+                case 'enable-crop':           enableCrop();          return;
+                case 'rotate-image':          rotateImage();         return;
+                case 'reset-image':           resetImage();          return;
+                case 'save-document':         openSaveModal();       return;
+                case 'back-to-options':       backToOptions();       return;
+                case 'apply-crop':            applyCrop();           return;
+            }
+        }
+
+        // data-close-modal
+        const closer = event.target.closest('[data-close-modal]');
+        if (closer) {
+            if (closer.dataset.closeModal === 'crop') closeCropModal();
+            if (closer.dataset.closeModal === 'save') closeSaveModal();
+        }
+    }
+
+    function handleInput(event) {
+        const t = event.target;
+
+        if (t.id === 'filterSelect') {
+            applyFilter(t.value);
+        }
+    }
+
+    function handleChange(event) {
+        const t = event.target;
+        if (t.id === 'fileInput') {
+            loadImage(event);
+        }
+    }
+
+    function handleSubmit(event) {
+        if (event.target.id === 'saveForm') {
+            event.preventDefault();
+            confirmSave();
+        }
+    }
+
+    function handleKeydown(event) {
+        if (event.key === 'Escape') {
+            const cropModal = $('cropModal');
+            const saveModal = $('saveModal');
+            if (cropModal && !cropModal.hidden) closeCropModal();
+            if (saveModal && !saveModal.hidden) closeSaveModal();
+        }
+    }
+
+    /** Release camera on page unload */
+    function handleBeforeUnload() {
+        stopCamera();
+    }
+
+    /* =========================================================
+       INIT
+       ========================================================= */
+
+    function init() {
+        document.addEventListener('click',   handleClick);
+        document.addEventListener('input',   handleInput);
+        document.addEventListener('change',  handleChange);
+        document.addEventListener('submit',  handleSubmit);
+        document.addEventListener('keydown', handleKeydown);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('pagehide',     handleBeforeUnload);
+
+        setSection('options');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
     } else {
-        // Show options if hidden
-        scanOptions.style.display = 'flex';
+        init();
     }
-}
+})();

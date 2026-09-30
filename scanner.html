@@ -2,177 +2,378 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner - Scanify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Scan documents using your camera or upload images in Scanify. Crop, rotate, apply filters and save as PDF.">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+
+    <title>Scanner — Scanify</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📄%3C/text%3E%3C/svg%3E">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
 </head>
+
 <body>
-    <!-- Navigation Bar (Desktop) -->
-    <nav class="navbar desktop-nav">
+    <!-- ============ Skip Link ============ -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============ Desktop Navigation ============ -->
+    <nav class="navbar desktop-nav" aria-label="Primary navigation">
         <div class="navbar-container">
-            <div class="navbar-logo">
-                <i class="fas fa-file-scan"></i>
+            <a href="index.html" class="navbar-logo" aria-label="Scanify home">
+                <i class="fas fa-file-scan" aria-hidden="true"></i>
                 <span>Scanify</span>
-            </div>
+            </a>
+
             <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="scanner.html" class="active">Scanner</a></li>
+                <li><a href="scanner.html" class="active" aria-current="page">Scanner</a></li>
                 <li><a href="documents.html">Documents</a></li>
                 <li><a href="tools.html">Tools</a></li>
                 <li><a href="settings.html">Settings</a></li>
             </ul>
-            <button class="btn btn-primary nav-scan-btn" onclick="showScanOptions()">
-                <i class="fas fa-plus"></i> Scan
+
+            <button
+                type="button"
+                class="btn btn-primary nav-scan-btn"
+                data-action="show-scan-options"
+                aria-label="Show scan options"
+            >
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                <span>Scan</span>
             </button>
         </div>
     </nav>
 
-    <!-- Bottom Navigation (Mobile) -->
-    <nav class="bottom-nav mobile-nav">
+    <!-- ============ Mobile Bottom Navigation ============ -->
+    <nav class="bottom-nav mobile-nav" aria-label="Mobile navigation">
         <a href="index.html" class="nav-item" data-page="home">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="documents.html" class="nav-item" data-page="documents">
-            <i class="fas fa-file"></i>
+            <i class="fas fa-file" aria-hidden="true"></i>
             <span>Documents</span>
         </a>
-        <button class="nav-fab active" onclick="showScanOptions()" title="Scan Document">
-            <i class="fas fa-plus"></i>
+
+        <button
+            type="button"
+            class="nav-fab active"
+            data-action="show-scan-options"
+            aria-label="Scan a document"
+            title="Scan Document"
+        >
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
+
         <a href="tools.html" class="nav-item" data-page="tools">
-            <i class="fas fa-tools"></i>
+            <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Tools</span>
         </a>
         <a href="settings.html" class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container">
+    <!-- ============ Main Content ============ -->
+    <main id="main-content" class="container">
         <div class="scanner-container">
-            <h1>Document Scanner</h1>
+            <h1 class="page-title">Document Scanner</h1>
 
-            <!-- Scan Options -->
-            <div id="scanOptions" class="scan-options">
-                <div class="option-card" onclick="openCamera()">
-                    <i class="fas fa-camera"></i>
+            <!-- ========== Scan Options ========== -->
+            <section id="scanOptions" class="scan-options" aria-label="Scan options">
+                <button
+                    type="button"
+                    class="option-card"
+                    data-action="open-camera"
+                >
+                    <i class="fas fa-camera" aria-hidden="true"></i>
                     <h3>Open Camera</h3>
                     <p>Use your device's camera to scan documents</p>
-                </div>
-                <div class="option-card" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-image"></i>
+                </button>
+
+                <button
+                    type="button"
+                    class="option-card"
+                    data-action="trigger-file-input"
+                >
+                    <i class="fas fa-image" aria-hidden="true"></i>
                     <h3>Upload Image</h3>
                     <p>Select an image from your device</p>
-                </div>
+                </button>
+            </section>
+
+            <!-- ========== Camera Error ========== -->
+            <div
+                id="cameraError"
+                class="camera-error"
+                role="alert"
+                hidden
+            >
+                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                <p id="cameraErrorText">Unable to access camera.</p>
+                <button type="button" class="btn btn-secondary" data-action="back-to-options">
+                    Go Back
+                </button>
             </div>
 
-            <!-- Camera Preview -->
-            <div id="cameraSection" class="camera-section" style="display: none;">
+            <!-- ========== Camera Preview ========== -->
+            <section
+                id="cameraSection"
+                class="camera-section"
+                aria-label="Camera preview"
+                hidden
+            >
                 <div class="camera-wrapper">
-                    <video id="cameraPreview" autoplay playsinline></video>
+                    <video
+                        id="cameraPreview"
+                        autoplay
+                        playsinline
+                        muted
+                        aria-label="Live camera preview"
+                    ></video>
+
                     <div class="camera-controls">
-                        <button class="btn btn-primary" onclick="capturePhoto()">
-                            <i class="fas fa-circle"></i> Capture
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-capture"
+                            data-action="capture-photo"
+                            aria-label="Capture photo"
+                        >
+                            <i class="fas fa-circle" aria-hidden="true"></i>
+                            <span>Capture</span>
                         </button>
-                        <button class="btn btn-secondary" onclick="stopCamera()">
-                            <i class="fas fa-times"></i> Close
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-action="stop-camera"
+                            aria-label="Close camera"
+                        >
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                            <span>Close</span>
                         </button>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Canvas Editor -->
-            <div id="editorSection" class="editor-section" style="display: none;">
+            <!-- ========== Canvas Editor ========== -->
+            <section
+                id="editorSection"
+                class="editor-section"
+                aria-label="Image editor"
+                hidden
+            >
                 <div class="editor-preview">
-                    <canvas id="editorCanvas"></canvas>
+                    <canvas
+                        id="editorCanvas"
+                        aria-label="Scanned document preview"
+                    ></canvas>
                 </div>
 
-                <div class="editor-toolbar">
+                <div class="editor-toolbar" role="toolbar" aria-label="Editing tools">
                     <div class="toolbar-group">
-                        <label>Crop</label>
-                        <button class="btn btn-icon" onclick="enableCrop()" title="Crop Image">
-                            <i class="fas fa-crop"></i>
+                        <label id="cropLabel">Crop</label>
+                        <button
+                            type="button"
+                            class="btn btn-icon"
+                            data-action="enable-crop"
+                            title="Crop Image"
+                            aria-labelledby="cropLabel"
+                        >
+                            <i class="fas fa-crop" aria-hidden="true"></i>
                         </button>
                     </div>
+
                     <div class="toolbar-group">
-                        <label>Rotate</label>
-                        <button class="btn btn-icon" onclick="rotateImage()" title="Rotate 90°">
-                            <i class="fas fa-redo"></i>
+                        <label id="rotateLabel">Rotate</label>
+                        <button
+                            type="button"
+                            class="btn btn-icon"
+                            data-action="rotate-image"
+                            title="Rotate 90°"
+                            aria-labelledby="rotateLabel"
+                        >
+                            <i class="fas fa-redo" aria-hidden="true"></i>
                         </button>
                     </div>
+
                     <div class="toolbar-group">
-                        <label>Filter</label>
-                        <select id="filterSelect" onchange="applyFilter(this.value)">
+                        <label for="filterSelect">Filter</label>
+                        <select id="filterSelect" data-action="apply-filter">
                             <option value="original">Original</option>
                             <option value="grayscale">Grayscale</option>
-                            <option value="bw">Black & White</option>
+                            <option value="bw">Black &amp; White</option>
+                            <option value="sepia">Sepia</option>
+                            <option value="brightness">Brighten</option>
                         </select>
                     </div>
+
                     <div class="toolbar-group">
-                        <button class="btn btn-secondary" onclick="resetImage()" title="Reset">
-                            <i class="fas fa-undo"></i> Reset
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-action="reset-image"
+                            title="Reset"
+                        >
+                            <i class="fas fa-undo" aria-hidden="true"></i>
+                            <span>Reset</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="editor-actions">
-                    <button class="btn btn-primary" onclick="saveDocument()">
-                        <i class="fas fa-save"></i> Save Scan
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-action="save-document"
+                    >
+                        <i class="fas fa-save" aria-hidden="true"></i>
+                        <span>Save Scan</span>
                     </button>
-                    <button class="btn btn-secondary" onclick="backToOptions()">
-                        <i class="fas fa-arrow-left"></i> Back
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-action="back-to-options"
+                    >
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                        <span>Back</span>
                     </button>
                 </div>
-            </div>
+            </section>
 
-            <!-- Crop Modal -->
-            <div id="cropModal" class="modal" style="display: none;">
-                <div class="modal-content">
+            <!-- ========== Crop Modal ========== -->
+            <div
+                id="cropModal"
+                class="modal modal-fullscreen"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="cropTitle"
+                hidden
+            >
+                <div class="modal-backdrop" data-close-modal="crop"></div>
+
+                <div class="modal-content modal-large" role="document">
                     <div class="modal-header">
-                        <h2>Crop Image</h2>
-                        <button class="modal-close" onclick="closeCropModal()">×</button>
+                        <h2 id="cropTitle">Crop Image</h2>
+                        <button
+                            type="button"
+                            class="modal-close"
+                            data-close-modal="crop"
+                            aria-label="Close crop dialog"
+                        >
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
                     </div>
+
                     <div class="crop-container">
-                        <canvas id="cropCanvas"></canvas>
+                        <canvas
+                            id="cropCanvas"
+                            aria-label="Crop selection area"
+                        ></canvas>
                     </div>
+
                     <div class="modal-footer">
-                        <button class="btn btn-primary" onclick="applyCrop()">Apply Crop</button>
-                        <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-action="apply-crop"
+                        >
+                            Apply Crop
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-close-modal="crop"
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Save Document Modal -->
-            <div id="saveModal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Save Document</h2>
-                        <button class="modal-close" onclick="closeSaveModal()">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <label for="docName">Document Name:</label>
-                        <input type="text" id="docName" placeholder="e.g., Lecture Notes, Assignment, CNIC Scan" class="form-input">
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" onclick="confirmSave()">Save</button>
-                        <button class="btn btn-secondary" onclick="closeSaveModal()">Cancel</button>
-                    </div>
+            <!-- ========== Save Document Modal ========== -->
+            <div
+                id="saveModal"
+                class="modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="saveTitle"
+                hidden
+            >
+                <div class="modal-backdrop" data-close-modal="save"></div>
+
+                <div class="modal-content" role="document">
+                    <form id="saveForm">
+                        <div class="modal-header">
+                            <h2 id="saveTitle">Save Document</h2>
+                            <button
+                                type="button"
+                                class="modal-close"
+                                data-close-modal="save"
+                                aria-label="Close save dialog"
+                            >
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <label for="docName" class="form-label">Document Name:</label>
+                            <input
+                                type="text"
+                                id="docName"
+                                class="form-input"
+                                placeholder="e.g., Lecture Notes, Assignment, CNIC Scan"
+                                required
+                                maxlength="100"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save" aria-hidden="true"></i>
+                                <span>Save</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-close-modal="save"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <!-- Hidden File Input -->
-        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="loadImage(event)">
+        <!-- ========== Hidden File Input ========== -->
+        <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
+        >
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <!-- ============ Toast ============ -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="js/app.js"></script>
-    <script src="js/scanner.js"></script>
+    <!-- ============ Scripts ============ -->
+    <script src="js/app.js" defer></script>
+    <script src="js/scanner.js" defer></script>
 </body>
-</html>
+</html>>

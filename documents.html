@@ -2,126 +2,300 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents - Scanify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="View, search, preview and manage all your scanned documents in Scanify.">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+
+    <title>My Documents — Scanify</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📄%3C/text%3E%3C/svg%3E">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
 </head>
+
 <body>
-    <!-- Navigation Bar (Desktop) -->
-    <nav class="navbar desktop-nav">
+    <!-- ============ Skip Link (Accessibility) ============ -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============ Desktop Navigation ============ -->
+    <nav class="navbar desktop-nav" aria-label="Primary navigation">
         <div class="navbar-container">
-            <div class="navbar-logo">
-                <i class="fas fa-file-scan"></i>
+            <a href="index.html" class="navbar-logo" aria-label="Scanify home">
+                <i class="fas fa-file-scan" aria-hidden="true"></i>
                 <span>Scanify</span>
-            </div>
+            </a>
+
             <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="scanner.html">Scanner</a></li>
-                <li><a href="documents.html" class="active">Documents</a></li>
+                <li><a href="documents.html" class="active" aria-current="page">Documents</a></li>
                 <li><a href="tools.html">Tools</a></li>
                 <li><a href="settings.html">Settings</a></li>
             </ul>
-            <button class="btn btn-primary nav-scan-btn" onclick="goToScanner()">
-                <i class="fas fa-plus"></i> Scan
+
+            <button
+                type="button"
+                class="btn btn-primary nav-scan-btn"
+                data-action="go-to-scanner"
+                aria-label="Start a new scan"
+            >
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                <span>Scan</span>
             </button>
         </div>
     </nav>
 
-    <!-- Bottom Navigation (Mobile) -->
-    <nav class="bottom-nav mobile-nav">
+    <!-- ============ Mobile Bottom Navigation ============ -->
+    <nav class="bottom-nav mobile-nav" aria-label="Mobile navigation">
         <a href="index.html" class="nav-item" data-page="home">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
-        <a href="documents.html" class="nav-item active" data-page="documents">
-            <i class="fas fa-file"></i>
+        <a href="documents.html" class="nav-item active" data-page="documents" aria-current="page">
+            <i class="fas fa-file" aria-hidden="true"></i>
             <span>Documents</span>
         </a>
-        <button class="nav-fab" onclick="goToScanner()" title="Scan Document">
-            <i class="fas fa-plus"></i>
+
+        <button
+            type="button"
+            class="nav-fab"
+            data-action="go-to-scanner"
+            aria-label="Scan a document"
+            title="Scan Document"
+        >
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
+
         <a href="tools.html" class="nav-item" data-page="tools">
-            <i class="fas fa-tools"></i>
+            <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Tools</span>
         </a>
         <a href="settings.html" class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container">
+    <!-- ============ Main Content ============ -->
+    <main id="main-content" class="container">
         <div class="documents-container">
+
+            <!-- Page Header -->
             <div class="documents-header">
                 <h1>My Documents</h1>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search documents..." onkeyup="searchDocuments()">
+
+                <div class="search-bar" role="search">
+                    <label for="searchInput" class="sr-only">Search documents</label>
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search documents..."
+                        autocomplete="off"
+                        aria-controls="documentsGrid"
+                    >
+                    <button
+                        type="button"
+                        id="clearSearchBtn"
+                        class="search-clear"
+                        aria-label="Clear search"
+                        hidden
+                    >
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
                 </div>
             </div>
 
-            <div id="documentsGrid" class="documents-grid">
-                <!-- Documents will be loaded here -->
+            <!-- Documents Grid -->
+            <div
+                id="documentsGrid"
+                class="documents-grid"
+                aria-live="polite"
+                aria-busy="false"
+            >
+                <!-- Documents injected by JS -->
             </div>
 
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <i class="fas fa-inbox"></i>
+            <!-- Empty State (no documents at all) -->
+            <div id="emptyState" class="empty-state" hidden>
+                <i class="fas fa-inbox" aria-hidden="true"></i>
                 <p>No documents found.</p>
-                <button class="btn btn-primary" onclick="goToScanner()">
-                    <i class="fas fa-camera"></i> Start Scanning
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="go-to-scanner"
+                >
+                    <i class="fas fa-camera" aria-hidden="true"></i>
+                    Start Scanning
                 </button>
             </div>
 
-            <div id="noSearchResults" class="empty-state" style="display: none;">
-                <i class="fas fa-search"></i>
+            <!-- Empty State (no search results) -->
+            <div id="noSearchResults" class="empty-state empty-state--search" hidden>
+                <i class="fas fa-search" aria-hidden="true"></i>
                 <p>No documents match your search.</p>
-            </div>
-        </div>
-
-        <!-- Document Preview Modal -->
-        <div id="previewModal" class="modal" style="display: none;">
-            <div class="modal-content modal-large">
-                <div class="modal-header">
-                    <h2 id="previewTitle">Document Preview</h2>
-                    <button class="modal-close" onclick="closePreviewModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <img id="previewImage" src="" alt="Document Preview" class="preview-image">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="downloadCurrentDocument()">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                    <button class="btn btn-secondary" onclick="closePreviewModal()">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rename Modal -->
-        <div id="renameModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Rename Document</h2>
-                    <button class="modal-close" onclick="closeRenameModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <label for="renameName">New Name:</label>
-                    <input type="text" id="renameName" class="form-input">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="confirmRename()">Rename</button>
-                    <button class="btn btn-secondary" onclick="closeRenameModal()">Cancel</button>
-                </div>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="resetSearchBtn"
+                >
+                    Clear search
+                </button>
             </div>
         </div>
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <!-- ============ Preview Modal ============ -->
+    <div
+        id="previewModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="previewTitle"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="preview"></div>
 
-    <script src="js/app.js"></script>
-    <script src="js/documents.js"></script>
+        <div class="modal-content modal-large" role="document">
+            <div class="modal-header">
+                <h2 id="previewTitle">Document Preview</h2>
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="preview"
+                    aria-label="Close preview"
+                >
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <img
+                    id="previewImage"
+                    alt="Document preview"
+                    class="preview-image"
+                >
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="downloadBtn">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    Download
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-close-modal="preview"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Rename Modal ============ -->
+    <div
+        id="renameModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="renameTitle"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="rename"></div>
+
+        <div class="modal-content" role="document">
+            <form id="renameForm">
+                <div class="modal-header">
+                    <h2 id="renameTitle">Rename Document</h2>
+                    <button
+                        type="button"
+                        class="modal-close"
+                        data-close-modal="rename"
+                        aria-label="Close rename dialog"
+                    >
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <label for="renameName" class="form-label">New Name:</label>
+                    <input
+                        type="text"
+                        id="renameName"
+                        class="form-input"
+                        required
+                        maxlength="100"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Rename</button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-close-modal="rename"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ============ Delete Confirmation Modal ============ -->
+<div
+    id="deleteModal"
+    class="modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="deleteTitle"
+    aria-describedby="deleteDesc"
+    hidden
+>
+    <div class="modal-backdrop" data-close-modal="delete"></div>
+    <div class="modal-content" role="document">
+        <div class="modal-header">
+            <h2 id="deleteTitle">Delete Document?</h2>
+            <button type="button" class="modal-close"
+                    data-close-modal="delete" aria-label="Close dialog">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="deleteDesc" class="text-muted">
+                Are you sure you want to delete
+                <strong id="deleteDocName">this document</strong>?
+                This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger"
+                    id="confirmDeleteBtn" data-action="confirm-delete">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+                <span>Delete</span>
+            </button>
+            <button type="button" class="btn btn-secondary"
+                    data-close-modal="delete">Cancel</button>
+        </div>
+    </div>
+</div>
+
+    <!-- ============ Toast ============ -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ============ Scripts ============ -->
+    <script src="js/app.js" defer></script>
+    <script src="js/documents.js" defer></script>
 </body>
-</html>
+</html>>

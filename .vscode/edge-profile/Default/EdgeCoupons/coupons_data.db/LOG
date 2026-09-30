@@ -1,0 +1,6 @@
+2026/09/30-11:41:32.555 2a0c Reusing MANIFEST D:\WT Project\Scanify\.vscode\edge-profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/30-11:41:32.559 2a0c Recovering log #4
+2026/09/30-11:41:32.559 2a0c Reusing old log D:\WT Project\Scanify\.vscode\edge-profile\Default\EdgeCoupons/coupons_data.db/000004.log 
+2026/09/30-11:41:32.655 1b50 Level-0 table #8: started
+2026/09/30-11:41:32.660 1b50 Level-0 table #8: 683444 bytes OK
+2026/09/30-11:41:32.662 1b50 Delete type=0 #4

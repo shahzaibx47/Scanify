@@ -2,108 +2,177 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Scanify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Manage Scanify settings — theme, documents storage, contact and app information.">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+
+    <title>Settings — Scanify</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📄%3C/text%3E%3C/svg%3E">
+
+    <!-- ============ Anti-FOUC: Apply theme BEFORE CSS loads ============ -->
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('scanify-theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) { /* localStorage unavailable */ }
+        })();
+    </script>
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
 </head>
+
 <body>
-    <!-- Navigation Bar (Desktop) -->
-    <nav class="navbar desktop-nav">
+    <!-- ============ Skip Link ============ -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============ Desktop Navigation ============ -->
+    <nav class="navbar desktop-nav" aria-label="Primary navigation">
         <div class="navbar-container">
-            <div class="navbar-logo">
-                <i class="fas fa-file-scan"></i>
+            <a href="index.html" class="navbar-logo" aria-label="Scanify home">
+                <i class="fas fa-file-scan" aria-hidden="true"></i>
                 <span>Scanify</span>
-            </div>
+            </a>
+
             <ul class="nav-menu">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="scanner.html">Scanner</a></li>
                 <li><a href="documents.html">Documents</a></li>
                 <li><a href="tools.html">Tools</a></li>
-                <li><a href="settings.html" class="active">Settings</a></li>
+                <li><a href="settings.html" class="active" aria-current="page">Settings</a></li>
             </ul>
-            <button class="btn btn-primary nav-scan-btn" onclick="goToScanner()">
-                <i class="fas fa-plus"></i> Scan
+
+            <button
+                type="button"
+                class="btn btn-primary nav-scan-btn"
+                data-action="go-to-scanner"
+                aria-label="Start a new scan"
+            >
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                <span>Scan</span>
             </button>
         </div>
     </nav>
 
-    <!-- Bottom Navigation (Mobile) -->
-    <nav class="bottom-nav mobile-nav">
+    <!-- ============ Mobile Bottom Navigation ============ -->
+    <nav class="bottom-nav mobile-nav" aria-label="Mobile navigation">
         <a href="index.html" class="nav-item" data-page="home">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="documents.html" class="nav-item" data-page="documents">
-            <i class="fas fa-file"></i>
+            <i class="fas fa-file" aria-hidden="true"></i>
             <span>Documents</span>
         </a>
-        <button class="nav-fab" onclick="goToScanner()" title="Scan Document">
-            <i class="fas fa-plus"></i>
+
+        <button
+            type="button"
+            class="nav-fab"
+            data-action="go-to-scanner"
+            aria-label="Scan a document"
+            title="Scan Document"
+        >
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
+
         <a href="tools.html" class="nav-item" data-page="tools">
-            <i class="fas fa-tools"></i>
+            <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Tools</span>
         </a>
-        <a href="settings.html" class="nav-item active" data-page="settings">
-            <i class="fas fa-cog"></i>
+        <a href="settings.html" class="nav-item active" data-page="settings" aria-current="page">
+            <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container">
-        <h1>Settings</h1>
+    <!-- ============ Main Content ============ -->
+    <main id="main-content" class="container">
+        <h1 class="page-title">Settings</h1>
 
-        <!-- Appearance Section -->
-        <section class="settings-section">
+        <!-- ========== Appearance ========== -->
+        <section class="settings-section" aria-labelledby="appearance-title">
             <div class="section-header">
-                <i class="fas fa-palette"></i>
-                <h2>Appearance</h2>
+                <i class="fas fa-palette" aria-hidden="true"></i>
+                <h2 id="appearance-title">Appearance</h2>
             </div>
+
             <div class="settings-content">
                 <div class="setting-item">
                     <div class="setting-label">
                         <h3>Theme</h3>
                         <p>Choose your preferred color scheme</p>
                     </div>
-                    <div class="theme-toggle">
-                        <button class="theme-btn light-theme" onclick="setTheme('light')" id="lightThemeBtn">
-                            <i class="fas fa-sun"></i> Light
+
+                    <div class="theme-toggle" role="group" aria-label="Theme selection">
+                        <button
+                            type="button"
+                            class="theme-btn light-theme"
+                            id="lightThemeBtn"
+                            data-theme-value="light"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-sun" aria-hidden="true"></i>
+                            <span>Light</span>
                         </button>
-                        <button class="theme-btn dark-theme" onclick="setTheme('dark')" id="darkThemeBtn">
-                            <i class="fas fa-moon"></i> Dark
+                        <button
+                            type="button"
+                            class="theme-btn dark-theme"
+                            id="darkThemeBtn"
+                            data-theme-value="dark"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-moon" aria-hidden="true"></i>
+                            <span>Dark</span>
                         </button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Documents Section -->
-        <section class="settings-section">
+        <!-- ========== Documents ========== -->
+        <section class="settings-section" aria-labelledby="documents-settings-title">
             <div class="section-header">
-                <i class="fas fa-file"></i>
-                <h2>Documents</h2>
+                <i class="fas fa-file" aria-hidden="true"></i>
+                <h2 id="documents-settings-title">Documents</h2>
             </div>
+
             <div class="settings-content">
                 <div class="setting-item">
                     <div class="setting-label">
                         <h3>Clear All Documents</h3>
                         <p>Remove all saved scanned documents from your device</p>
                     </div>
-                    <button class="btn btn-danger" onclick="showClearConfirm()">
-                        <i class="fas fa-trash"></i> Clear All
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        data-action="show-clear-confirm"
+                    >
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span>Clear All</span>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Application Section -->
-        <section class="settings-section">
+        <!-- ========== Application ========== -->
+        <section class="settings-section" aria-labelledby="application-title">
             <div class="section-header">
-                <i class="fas fa-info-circle"></i>
-                <h2>Application</h2>
+                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                <h2 id="application-title">Application</h2>
             </div>
+
             <div class="settings-content">
                 <div class="info-box">
                     <div class="info-item">
@@ -119,44 +188,48 @@
                         <span class="info-value">Frontend Web Application</span>
                     </div>
                 </div>
+
                 <p class="app-description">
-                    Scanify is a modern browser-based document scanning application that allows users to capture, edit, organize and convert documents directly from their device.
+                    Scanify is a modern browser-based document scanning application that allows users
+                    to capture, edit, organize and convert documents directly from their device.
                 </p>
+
                 <ul class="app-features">
-                    <li><i class="fas fa-check"></i> No account required</li>
-                    <li><i class="fas fa-check"></i> No backend server</li>
-                    <li><i class="fas fa-check"></i> Local browser storage</li>
-                    <li><i class="fas fa-check"></i> Client-side processing</li>
-                    <li><i class="fas fa-check"></i> Responsive design</li>
-                    <li><i class="fas fa-check"></i> Simple document management</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> No account required</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> No backend server</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> Local browser storage</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> Client-side processing</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> Responsive design</li>
+                    <li><i class="fas fa-check" aria-hidden="true"></i> Simple document management</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Contact Section -->
-        <section class="settings-section">
+        <!-- ========== Contact ========== -->
+        <section class="settings-section" aria-labelledby="contact-title">
             <div class="section-header">
-                <i class="fas fa-envelope"></i>
-                <h2>Contact Us</h2>
+                <i class="fas fa-envelope" aria-hidden="true"></i>
+                <h2 id="contact-title">Contact Us</h2>
             </div>
+
             <div class="settings-content">
                 <div class="contact-info">
                     <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
                         <div>
                             <h4>Email</h4>
                             <a href="mailto:info@scanify.local">info@scanify.local</a>
                         </div>
                     </div>
                     <div class="contact-item">
-                        <i class="fas fa-phone"></i>
+                        <i class="fas fa-phone" aria-hidden="true"></i>
                         <div>
                             <h4>Phone</h4>
                             <span>+1 (555) 123-4567</span>
                         </div>
                     </div>
                     <div class="contact-item">
-                        <i class="fas fa-graduation-cap"></i>
+                        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
                         <div>
                             <h4>University Project</h4>
                             <span>Web Technology Course</span>
@@ -164,129 +237,146 @@
                     </div>
                 </div>
 
-                <form class="contact-form" onsubmit="submitContactForm(event)">
+                <form class="contact-form" id="contactForm" novalidate>
                     <h3>Send us a Message</h3>
+
                     <div class="form-group">
-                        <label for="contactName">Name *</label>
-                        <input type="text" id="contactName" class="form-input" required>
+                        <label for="contactName">Name <span aria-hidden="true">*</span></label>
+                        <input
+                            type="text"
+                            id="contactName"
+                            name="name"
+                            class="form-input"
+                            required
+                            autocomplete="name"
+                            maxlength="80"
+                        >
+                        <span class="form-error" data-error-for="contactName" role="alert"></span>
                     </div>
+
                     <div class="form-group">
-                        <label for="contactEmail">Email *</label>
-                        <input type="email" id="contactEmail" class="form-input" required>
+                        <label for="contactEmail">Email <span aria-hidden="true">*</span></label>
+                        <input
+                            type="email"
+                            id="contactEmail"
+                            name="email"
+                            class="form-input"
+                            required
+                            autocomplete="email"
+                            maxlength="120"
+                        >
+                        <span class="form-error" data-error-for="contactEmail" role="alert"></span>
                     </div>
+
                     <div class="form-group">
-                        <label for="contactMessage">Message *</label>
-                        <textarea id="contactMessage" class="form-input" rows="4" required></textarea>
+                        <label for="contactMessage">Message <span aria-hidden="true">*</span></label>
+                        <textarea
+                            id="contactMessage"
+                            name="message"
+                            class="form-input"
+                            rows="4"
+                            required
+                            maxlength="1000"
+                        ></textarea>
+                        <span class="form-error" data-error-for="contactMessage" role="alert"></span>
                     </div>
+
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Send Message
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        <span>Send Message</span>
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- About Section -->
-        <section class="settings-section">
+        <!-- ========== About ========== -->
+        <section class="settings-section" aria-labelledby="about-title">
             <div class="section-header">
-                <i class="fas fa-book"></i>
-                <h2>About Scanify</h2>
+                <i class="fas fa-book" aria-hidden="true"></i>
+                <h2 id="about-title">About Scanify</h2>
             </div>
+
             <div class="settings-content">
                 <div class="about-content">
                     <h3>About Scanify</h3>
                     <p>
-                        Scanify is a modern browser-based document scanning application that allows users to capture, edit, organize and convert documents directly from their device. Designed as a Web Technology university project, Scanify demonstrates the power of modern web technologies like HTML5 Canvas, FileAPI, and LocalStorage.
+                        Scanify is a modern browser-based document scanning application that allows
+                        users to capture, edit, organize and convert documents directly from their
+                        device. Designed as a Web Technology university project, Scanify demonstrates
+                        the power of modern web technologies like HTML5 Canvas, FileAPI, and LocalStorage.
                     </p>
                     <p>
-                        Whether you're a student managing class notes, a professional organizing receipts, or anyone who needs quick document scanning capabilities, Scanify provides a simple and intuitive interface without requiring cloud storage or personal accounts.
+                        Whether you're a student managing class notes, a professional organizing
+                        receipts, or anyone who needs quick document scanning capabilities, Scanify
+                        provides a simple and intuitive interface without requiring cloud storage or
+                        personal accounts.
                     </p>
                     <p class="text-muted">
-                        Created with ❤️ as a Web Technology Project
+                        Created with <span aria-label="love">❤️</span> as a Web Technology Project
                     </p>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Clear Confirmation Modal -->
-    <div id="clearConfirmModal" class="modal" style="display: none;">
-        <div class="modal-content">
+    <!-- ============ Clear Confirmation Modal ============ -->
+    <div
+        id="clearConfirmModal"
+        class="modal"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="clearConfirmTitle"
+        aria-describedby="clearConfirmDesc"
+        hidden
+    >
+        <div class="modal-backdrop" data-close-modal="clear-confirm"></div>
+
+        <div class="modal-content" role="document">
             <div class="modal-header">
-                <h2>Clear All Documents?</h2>
-                <button class="modal-close" onclick="closeClearConfirm()">×</button>
+                <h2 id="clearConfirmTitle">Clear All Documents?</h2>
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="clear-confirm"
+                    aria-label="Close dialog"
+                >
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
             </div>
+
             <div class="modal-body">
-                <p style="color: var(--text-secondary);">
-                    This will permanently delete all saved documents from your device. This action cannot be undone.
+                <p id="clearConfirmDesc" class="text-muted">
+                    This will permanently delete all saved documents from your device.
+                    This action cannot be undone.
                 </p>
             </div>
+
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="confirmClear()">
-                    <i class="fas fa-trash"></i> Yes, Clear All
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="confirmClearBtn"
+                >
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <span>Yes, Clear All</span>
                 </button>
-                <button class="btn btn-secondary" onclick="closeClearConfirm()">Cancel</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-close-modal="clear-confirm"
+                >
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <!-- ============ Toast ============ -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="js/app.js"></script>
-    <script>
-        // Load theme on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const theme = getTheme();
-            updateThemeButtons(theme);
-        });
-
-        function setTheme(theme) {
-            localStorage.setItem('scanify-theme', theme);
-            document.documentElement.setAttribute('data-theme', theme);
-            updateThemeButtons(theme);
-            showToast(`Theme changed to ${theme} mode`);
-        }
-
-        function updateThemeButtons(theme) {
-            const lightBtn = document.getElementById('lightThemeBtn');
-            const darkBtn = document.getElementById('darkThemeBtn');
-            
-            lightBtn.classList.toggle('active', theme === 'light');
-            darkBtn.classList.toggle('active', theme === 'dark');
-        }
-
-        function showClearConfirm() {
-            document.getElementById('clearConfirmModal').style.display = 'flex';
-        }
-
-        function closeClearConfirm() {
-            document.getElementById('clearConfirmModal').style.display = 'none';
-        }
-
-        function confirmClear() {
-            clearAllDocuments();
-            closeClearConfirm();
-            showToast('All documents have been cleared');
-        }
-
-        function submitContactForm(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('contactName').value;
-            const email = document.getElementById('contactEmail').value;
-            const message = document.getElementById('contactMessage').value;
-
-            if (name && email && message) {
-                showToast('Thank you! Your message has been prepared successfully.');
-                
-                // Reset form
-                document.querySelector('.contact-form').reset();
-            }
-        }
-
-        function goToScanner() {
-            window.location.href = 'scanner.html';
-        }
-    </script>
+    <!-- ============ Scripts ============ -->
+    <script src="js/app.js" defer></script>
+    <script src="js/settings.js" defer></script>
+    
 </body>
-</html>
+</html>>

@@ -1,0 +1,5 @@
+2026/09/30-11:37:55.851 31ec Creating DB D:\WT Project\Scanify\.vscode\edge-profile\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/09/30-11:37:55.861 31ec Reusing MANIFEST D:\WT Project\Scanify\.vscode\edge-profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/30-11:37:56.639 4c4 Level-0 table #5: started
+2026/09/30-11:37:56.644 4c4 Level-0 table #5: 683273 bytes OK
+2026/09/30-11:37:56.647 4c4 Delete type=0 #3

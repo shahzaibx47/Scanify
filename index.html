@@ -2,106 +2,159 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanify - Document Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Scanify — Scan, organize, edit and convert your documents into PDF instantly, right from your browser.">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+
+    <title>Scanify — Document Scanner</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📄%3C/text%3E%3C/svg%3E">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
 </head>
+
 <body>
-    <!-- Navigation Bar (Desktop) -->
-    <nav class="navbar desktop-nav">
+    <!-- ============ Skip Link (Accessibility) ============ -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============ Desktop Navigation ============ -->
+    <nav class="navbar desktop-nav" aria-label="Primary navigation">
         <div class="navbar-container">
-            <div class="navbar-logo">
-                <i class="fas fa-file-scan"></i>
+            <a href="index.html" class="navbar-logo" aria-label="Scanify home">
+                <i class="fas fa-file-scan" aria-hidden="true"></i>
                 <span>Scanify</span>
-            </div>
+            </a>
+
             <ul class="nav-menu">
-                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="index.html" class="active" aria-current="page">Home</a></li>
                 <li><a href="scanner.html">Scanner</a></li>
                 <li><a href="documents.html">Documents</a></li>
                 <li><a href="tools.html">Tools</a></li>
                 <li><a href="settings.html">Settings</a></li>
             </ul>
-            <button class="btn btn-primary nav-scan-btn" onclick="goToScanner()">
-                <i class="fas fa-plus"></i> Scan
+
+            <button
+                type="button"
+                class="btn btn-primary nav-scan-btn"
+                data-action="go-to-scanner"
+                aria-label="Start a new scan"
+            >
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                <span>Scan</span>
             </button>
         </div>
     </nav>
 
-    <!-- Bottom Navigation (Mobile) -->
-    <nav class="bottom-nav mobile-nav">
-        <a href="index.html" class="nav-item active" data-page="home">
-            <i class="fas fa-home"></i>
+    <!-- ============ Mobile Bottom Navigation ============ -->
+    <nav class="bottom-nav mobile-nav" aria-label="Mobile navigation">
+        <a href="index.html" class="nav-item active" data-page="home" aria-current="page">
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="documents.html" class="nav-item" data-page="documents">
-            <i class="fas fa-file"></i>
+            <i class="fas fa-file" aria-hidden="true"></i>
             <span>Documents</span>
         </a>
-        <button class="nav-fab" onclick="goToScanner()" title="Scan Document">
-            <i class="fas fa-plus"></i>
+
+        <button
+            type="button"
+            class="nav-fab"
+            data-action="go-to-scanner"
+            aria-label="Scan a document"
+            title="Scan Document"
+        >
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
+
         <a href="tools.html" class="nav-item" data-page="tools">
-            <i class="fas fa-tools"></i>
+            <i class="fas fa-tools" aria-hidden="true"></i>
             <span>Tools</span>
         </a>
         <a href="settings.html" class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container">
-        <!-- Header Section -->
+    <!-- ============ Main Content ============ -->
+    <main id="main-content" class="container">
+
+        <!-- Hero / Header -->
         <header class="home-header">
             <div class="header-content">
                 <h1>Welcome to Scanify</h1>
                 <p>Scan, organize and convert your documents with ease.</p>
-                <button class="btn btn-primary btn-large" onclick="goToScanner()">
-                    <i class="fas fa-camera"></i> + Scan Document
+                <button
+                    type="button"
+                    class="btn btn-primary btn-large"
+                    data-action="go-to-scanner"
+                >
+                    <i class="fas fa-camera" aria-hidden="true"></i>
+                    Scan Document
                 </button>
             </div>
         </header>
 
-        <!-- Recent Documents Section -->
-        <section class="recent-docs-section">
+        <!-- Recent Documents -->
+        <section class="recent-docs-section" aria-labelledby="recent-docs-title">
             <div class="section-header">
-                <h2>My Documents</h2>
-                <a href="documents.html" class="link">View All →</a>
+                <h2 id="recent-docs-title">My Documents</h2>
+                <a href="documents.html" class="link">View All <span aria-hidden="true">→</span></a>
             </div>
 
-            <div id="recentDocumentsContainer" class="documents-grid">
-                <!-- Documents will be loaded here by JavaScript -->
+            <div
+                id="recentDocumentsContainer"
+                class="documents-grid"
+                aria-live="polite"
+                aria-busy="false"
+            >
+                <!-- Documents injected by JS -->
             </div>
 
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <i class="fas fa-inbox"></i>
+            <div id="emptyState" class="empty-state" hidden>
+                <i class="fas fa-inbox" aria-hidden="true"></i>
                 <p>Your scanned documents will appear here.</p>
-                <button class="btn btn-primary" onclick="goToScanner()">
-                    <i class="fas fa-camera"></i> Start Scanning
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="go-to-scanner"
+                >
+                    <i class="fas fa-camera" aria-hidden="true"></i>
+                    Start Scanning
                 </button>
             </div>
         </section>
 
         <!-- Quick Stats -->
-        <section class="stats-section">
+        <section class="stats-section" aria-label="Document statistics">
             <div class="stat-card">
-                <i class="fas fa-file"></i>
+                <i class="fas fa-file" aria-hidden="true"></i>
                 <div class="stat-content">
                     <h3 id="totalDocuments">0</h3>
                     <p>Documents</p>
                 </div>
             </div>
+
             <div class="stat-card">
-                <i class="fas fa-image"></i>
+                <i class="fas fa-image" aria-hidden="true"></i>
                 <div class="stat-content">
-                    <h3>0</h3>
+                    <h3 id="totalImages">0</h3>
                     <p>Images</p>
                 </div>
             </div>
+
             <div class="stat-card">
-                <i class="fas fa-database"></i>
+                <i class="fas fa-database" aria-hidden="true"></i>
                 <div class="stat-content">
                     <h3 id="storageUsed">0 KB</h3>
                     <p>Storage Used</p>
@@ -109,110 +162,38 @@
             </div>
         </section>
 
-        <!-- Features Section -->
-        <section class="features-section">
-            <h2>Features</h2>
+        <!-- Features -->
+        <section class="features-section" aria-labelledby="features-title">
+            <h2 id="features-title">Features</h2>
             <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-camera"></i>
+                <article class="feature-card">
+                    <i class="fas fa-camera" aria-hidden="true"></i>
                     <h3>Capture</h3>
                     <p>Use your device camera or upload images to scan documents instantly.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-edit"></i>
+                </article>
+                <article class="feature-card">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
                     <h3>Edit</h3>
                     <p>Crop, rotate, and apply filters to perfect your scans before saving.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-file-pdf"></i>
+                </article>
+                <article class="feature-card">
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
                     <h3>Convert</h3>
                     <p>Convert your scanned images into PDF format instantly.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-cloud"></i>
+                </article>
+                <article class="feature-card">
+                    <i class="fas fa-cloud" aria-hidden="true"></i>
                     <h3>Organize</h3>
                     <p>Store, search, and manage all your documents in one place locally.</p>
-                </div>
+                </article>
             </div>
         </section>
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <!-- ============ Toast ============ -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="js/app.js"></script>
-    <script>
-        // Load home page specific functionality
-        function loadHomePage() {
-            displayRecentDocuments();
-            updateStats();
-        }
-
-        function displayRecentDocuments() {
-            const container = document.getElementById('recentDocumentsContainer');
-            const emptyState = document.getElementById('emptyState');
-            const documents = getDocuments().slice(0, 6); // Show last 6 documents
-
-            container.innerHTML = '';
-
-            if (documents.length === 0) {
-                emptyState.style.display = 'flex';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-
-            documents.forEach(doc => {
-                const card = createDocumentCard(doc);
-                container.appendChild(card);
-            });
-        }
-
-        function createDocumentCard(doc) {
-            const card = document.createElement('div');
-            card.className = 'document-card';
-            card.innerHTML = `
-                <div class="card-image">
-                    <img src="${doc.imageData}" alt="${doc.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22%3E${doc.fileType}%3C/text%3E%3C/svg%3E'">
-                </div>
-                <div class="card-content">
-                    <h3>${doc.name}</h3>
-                    <p class="card-date">${new Date(doc.createdAt).toLocaleDateString()}</p>
-                    <div class="card-actions">
-                        <button class="btn-icon" title="Download" onclick="downloadDocument('${doc.id}')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="btn-icon" title="Delete" onclick="deleteDocumentWithConfirm('${doc.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            return card;
-        }
-
-        function updateStats() {
-            const documents = getDocuments();
-            document.getElementById('totalDocuments').textContent = documents.length;
-
-            // Calculate storage used
-            let storageUsed = 0;
-            documents.forEach(doc => {
-                if (doc.imageData) {
-                    storageUsed += doc.imageData.length;
-                }
-            });
-
-            const storageKB = (storageUsed / 1024).toFixed(2);
-            document.getElementById('storageUsed').textContent = storageKB + ' KB';
-        }
-
-        function goToScanner() {
-            window.location.href = 'scanner.html';
-        }
-
-        // Load page on startup
-        document.addEventListener('DOMContentLoaded', loadHomePage);
-    </script>
+    <!-- ============ Scripts ============ -->
+    <script src="js/app.js" defer></script>
 </body>
-</html>
+</html>>
