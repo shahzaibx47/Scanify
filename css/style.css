@@ -1230,6 +1230,30 @@ textarea.form-input {
     flex: 1;
 }
 
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-lg) var(--space-md) 100px var(--space-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .camera-wrapper {
+        border-radius: 0;
+        margin: 0 calc(-1 * var(--space-md));
+    }
+
+    #cameraPreview {
+        width: 100vw;
+        height: auto;
+        max-height: 60vh;
+    }
+
+    .container {
+        padding: var(--space-md) var(--space-sm) 100px var(--space-sm);
+    }
+}
+
 /* Crop */
 .crop-container {
-    padding: var(--space-md)}
+    padding: var(--space-md);
+}
